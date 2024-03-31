@@ -38,6 +38,7 @@
     </Reference>
     <Reference Include="Benchwarp">
       <HintPath>..\..\..\HollowKnight.MultiWorld\ItemSyncMod\lib\Benchwarp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="ItemSync">
       <HintPath>..\..\..\HollowKnight.MultiWorld\ItemSyncMod\bin\Debug\ItemSync.dll</HintPath>
@@ -145,6 +146,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BenchSysnc.cs" />
+    <Compile Include="MapSync.cs" />
     <Compile Include="MapSyncMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
