@@ -13,6 +13,7 @@ namespace MapSyncMod
     public class MapSync
     {
         public static readonly string SCENE_VISITED_MESSAGE_LABEL = "ItemSync-SceneVisited";
+        public List<int> MapSyncPlayers = new List<int>();
         public MapSync()
         {
             Init();
@@ -26,21 +27,20 @@ namespace MapSyncMod
         {
             Events.OnEnterGame -= OnEnterGame;
             Events.OnQuitToMenu -= OnQuitToMenu;
+            OnQuitToMenu();
         }
         private void OnEnterGame()
         {
-#if DEBUG
-            MapSyncMod.Instance.Log($"OnEnterGame");
-#endif
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneManager_activeSceneChanged; ;
+            if (!ItemSyncMod.ItemSyncMod.ISSettings.IsItemSync) return;
+            MapSyncMod.LogDebug($"OnEnterGame");
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
             ItemSyncMod.ItemSyncMod.Connection.OnDataReceived += OnDataReceived;
         }
         private void OnQuitToMenu()
         {
-#if DEBUG
-            MapSyncMod.Instance.Log($"OnQuitToMenu");
-#endif
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged; ;
+            MapSyncMod.LogDebug($"OnQuitToMenu");
+
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
             ItemSyncMod.ItemSyncMod.Connection.OnDataReceived -= OnDataReceived;
 
         }
@@ -50,45 +50,37 @@ namespace MapSyncMod
             if (to.name == "Quit_To_Menu") return;
             if (!PlayerData.instance.scenesVisited.Contains(to.name))
             {
-#if DEBUG
-                MapSyncMod.Instance.Log($"scenesVisited.!Contains[{to.name}]");
-#endif
+                MapSyncMod.LogDebug($"scenesVisited.!Contains[{to.name}]");
+
                 if (ItemSyncMod.ItemSyncMod.Connection == null) return;
 
-#if DEBUG
-                MapSyncMod.Instance.Log($"ItemSyncMod.Connection nonull[{to.name}]");
-#endif
+                MapSyncMod.LogDebug($"ItemSyncMod.Connection nonull[{to.name}]");
+
                 if (!ItemSyncMod.ItemSyncMod.Connection.IsConnected()) return;
 
-#if DEBUG
-                MapSyncMod.Instance.Log($"ItemSyncMod.Connection.IsConnected[{to.name}]");
-#endif
-                ItemSyncMod.ItemSyncMod.Connection.SendDataToAll(SCENE_VISITED_MESSAGE_LABEL,
-                    JsonConvert.SerializeObject(to.name));
+                MapSyncMod.LogDebug($"ItemSyncMod.Connection.IsConnected[{to.name}]");
 
-#if DEBUG
-                MapSyncMod.Instance.Log($"send[{to.name}]");
-#endif
-
+                foreach (var toPlayerId in MapSyncPlayers)
+                {
+                    ItemSyncMod.ItemSyncMod.Connection.SendData(SCENE_VISITED_MESSAGE_LABEL,
+                        JsonConvert.SerializeObject(to.name),
+                        toPlayerId);
+                    MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+                }
+                MapSyncMod.LogDebug($"send[{to.name}]");
             }
         }
 
-
         private void OnDataReceived(DataReceivedEvent dataReceivedEvent)
         {
-#if DEBUG
-            MapSyncMod.Instance.Log($"OnDataReceived[{dataReceivedEvent.Label}]");
-#endif
-
+            MapSyncMod.LogDebug($"OnDataReceived[{dataReceivedEvent.Label}]");
             if (dataReceivedEvent.Label != SCENE_VISITED_MESSAGE_LABEL) return;
             string scenes = dataReceivedEvent.Content.Replace("\"", "");
-#if DEBUG
-            MapSyncMod.Instance.Log($"get[{scenes}]");
-#endif
+
+            MapSyncMod.LogDebug($"get[{scenes}]");
+
             if (!MapChanger.Tracker.ScenesVisited.Contains(scenes))
                 MapChanger.Tracker.ScenesVisited.Add(scenes);
-
-
 
             //GameManager._instance.AddToScenesVisited(dataReceivedEvent.Content);
             if (!PlayerData.instance.scenesVisited.Contains(scenes))
@@ -102,7 +94,5 @@ namespace MapSyncMod
             }
             dataReceivedEvent.Handled = true;
         }
-
-
     }
 }
