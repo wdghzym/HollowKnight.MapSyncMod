@@ -17,11 +17,11 @@
 
 在物品同步MOD时 同步地图和椅子
 
-#必要前置
+# 必要前置
 - [ItemSyncMod](https://github.com/Shadudev/HollowKnight.MultiWorld)
 - [MapChanger](https://github.com/syyePhenomenol/MapChanger)
 
-#可选
+# 可选
 - [RecentItemsDisplay](https://github.com/flibber-hk/HollowKnight.RecentItemsDisplay). 椅子同步时显示消息
 - [Benchwarp](https://github.com/homothetyhk/HollowKnight.BenchwarpMod). 同步可传送椅子
 - [RandoMapMod](https://github.com/syyePhenomenol/RandoMapMod). 同步可传送椅子. 地图同步 在青色2号模式([隔壁我有汉化](https://github.com/wdghzym/RandoMapMod/releases))
