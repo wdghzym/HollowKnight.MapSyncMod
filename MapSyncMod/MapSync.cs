@@ -75,6 +75,7 @@ namespace MapSyncMod
         {
             MapSyncMod.LogDebug($"OnDataReceived[{dataReceivedEvent.Label}]");
             if (dataReceivedEvent.Label != SCENE_VISITED_MESSAGE_LABEL) return;
+            dataReceivedEvent.Handled = true;
             string scenes = dataReceivedEvent.Content.Replace("\"", "");
 
             MapSyncMod.LogDebug($"get[{scenes}]");
@@ -92,7 +93,6 @@ namespace MapSyncMod
             {
                 mapObject.MainUpdate();
             }
-            dataReceivedEvent.Handled = true;
         }
     }
 }

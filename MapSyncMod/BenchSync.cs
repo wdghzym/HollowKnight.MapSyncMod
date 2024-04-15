@@ -73,7 +73,8 @@ namespace MapSyncMod
         private void OnDataReceived(DataReceivedEvent dataReceivedEvent)
         {
             if (dataReceivedEvent.Label != BENCH_UNLOCK_MESSAGE_LABEL) return;
-
+            
+            dataReceivedEvent.Handled = true;
             Benchwarp.BenchKey benchKey = JsonConvert.DeserializeObject<Benchwarp.BenchKey>(dataReceivedEvent.Content);
 
             MapSyncMod.LogDebug($"BenchSync get Bench[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
@@ -93,7 +94,6 @@ namespace MapSyncMod
             {
                 mapObject.MainUpdate();
             }
-            dataReceivedEvent.Handled = true;
         }
 
         private string getBenchNmae(BenchKey benchKey)
