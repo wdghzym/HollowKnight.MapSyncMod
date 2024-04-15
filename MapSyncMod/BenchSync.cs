@@ -102,7 +102,15 @@ namespace MapSyncMod
             {
                 if (benchKey.SceneName == item.sceneName && benchKey.RespawnMarkerName == item.respawnMarker)
                 {
-                    return Benchwarp.Localization.Localize(item.name);
+                    switch (item.name)
+                    {
+                        case "Toll":
+                        case "Stag":
+                        case "Hot Springs":
+                            return $"{Benchwarp.Localization.Localize(item.areaName)}-{Benchwarp.Localization.Localize(item.name)}";
+                        default:
+                            return $"{Benchwarp.Localization.Localize(item.name)}";
+                    }
                 }
             }
             return $"{Benchwarp.Localization.Localize(benchKey.SceneName)}-{Benchwarp.Localization.Localize(benchKey.RespawnMarkerName)}";
