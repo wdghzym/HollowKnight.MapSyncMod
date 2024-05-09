@@ -14,7 +14,8 @@ namespace MapSyncMod
         public List<int> SyncPlayers = new List<int>();
         public BaseSync(string mESSAGE_LABEL)
         {
-            MESSAGE_LABEL = mESSAGE_LABEL;
+            //MESSAGE_LABEL = $"{nameof(MapSyncMod)}-{mESSAGE_LABEL}";
+            MESSAGE_LABEL= mESSAGE_LABEL;
             Init();
         }
         public virtual void Init()

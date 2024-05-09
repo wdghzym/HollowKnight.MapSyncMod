@@ -133,7 +133,7 @@ namespace MapSyncMod
         {
             MapSyncMod.LogDebug($"MapSyncMod OnEnterGame");
             
-            ItemSyncMod.ItemSyncMod.Connection.OnConnectedPlayersChanged += OnConnectedPlayersChanged;
+            //ItemSyncMod.ItemSyncMod.Connection.OnConnectedPlayersChanged += OnConnectedPlayersChanged;
             //ItemSyncMod.ItemSyncMod.ISSettings.AddSentData
             //MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.
             //ItemSyncMod.ItemSyncMod.Connection.SendDataToAllConnected()

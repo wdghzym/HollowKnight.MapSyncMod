@@ -13,7 +13,8 @@ namespace MapSyncMod
 {
     public class MapSync:BaseSync
     {
-        public MapSync():base("ItemSync-SceneVisited") { }
+        internal MapSync1000 mapSync1000;
+        public MapSync() : base("MapSyncMod-SceneVisited") { mapSync1000 = new(); }
         protected override void OnEnterGame()
         {
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
@@ -54,10 +55,12 @@ namespace MapSyncMod
                         toPlayerId);
                     MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
                 }
+                mapSync1000.SceneManager_activeSceneChanged(from, to);
                 MapSyncMod.LogDebug($"send[{to.name.BL()}]");
             }
         }
 
+        internal void OnDataReceived1000(DataReceivedEvent dataReceivedEvent) => this.OnDataReceived(dataReceivedEvent);
         protected override void OnDataReceived(DataReceivedEvent dataReceivedEvent)
         {
             if (!MapSyncMod.GS.MapSync) return;

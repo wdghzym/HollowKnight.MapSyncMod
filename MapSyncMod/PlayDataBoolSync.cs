@@ -15,7 +15,7 @@ namespace MapSyncMod
 {
     public class PlayDataBoolSync:BaseSync
     {
-        public PlayDataBoolSync() : base("ItemSync-PlayDataBool") { }
+        public PlayDataBoolSync() : base("MapSyncMod-PlayDataBool") { }
         protected override void OnEnterGame()
         {
             On.PlayerData.SetBool += PlayerData_SetBool;

@@ -55,15 +55,38 @@ namespace MapSyncMod
                     MapSyncMod.LogDebug($"key[{item.Key}] value[{item.Value}]");   
                 }
                 if (playerid == ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId) continue;
-                if (readyMetadata[playerid].ContainsKey(nameof(MapSync)))
+                //readyMetadata[playerid].TryGetValue(nameof(MapSync), out value);
+                //if (readyMetadata[playerid].ContainsKey(nameof(MapSync)))
+                if(readyMetadata[playerid].TryGetValue(nameof(MapSync), out string value))
                 {
-                    MapSyncMod.Instance.MapSync.SyncPlayers.Add(playerid);
-                    MapSyncMod.LogDebug($"addMapSyncPlayers playerid[{playerid}]");
+                    switch (value)
+                    {
+                        case "1.0.0.0-debug":
+                        case "1.0.0.0":
+                            MapSyncMod.Instance.MapSync.mapSync1000.SyncPlayers.Add(playerid);
+                            MapSyncMod.LogDebug($"addMapSyncPlayers1000 playerid[{playerid}]");
+                            break;
+                        default:
+                            MapSyncMod.Instance.MapSync.SyncPlayers.Add(playerid);
+                            MapSyncMod.LogDebug($"addMapSyncPlayers playerid[{playerid}]");
+                            break;
+                    }
                 }
-                if (readyMetadata[playerid].ContainsKey(nameof(BenchSync)))
+                //if (readyMetadata[playerid].ContainsKey(nameof(BenchSync)))
+                if (readyMetadata[playerid].TryGetValue(nameof(BenchSync), out value))
                 {
-                    MapSyncMod.Instance.BenchSync.SyncPlayers.Add(playerid);
-                    MapSyncMod.LogDebug($"addBenchSyncPlayers playerid[{playerid}]");
+                    switch (value)
+                    {
+                        case "1.0.0.0-debug":
+                        case "1.0.0.0":
+                            MapSyncMod.Instance.BenchSync.benchSync1000.SyncPlayers.Add(playerid);
+                            MapSyncMod.LogDebug($"addBenchSyncPlayers1000 playerid[{playerid}]");
+                            break;
+                        default:
+                            MapSyncMod.Instance.BenchSync.SyncPlayers.Add(playerid);
+                            MapSyncMod.LogDebug($"addBenchSyncPlayers playerid[{playerid}]");
+                            break;
+                    }
                 }
                 if (readyMetadata[playerid].ContainsKey(nameof(PlayDataBoolSync)))
                 {

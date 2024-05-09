@@ -17,7 +17,7 @@ namespace MapSyncMod
 {
     public class SceneDataBoolSync:BaseSync
     {
-        public SceneDataBoolSync():base("ItemSync-SceneDataBool") { }
+        public SceneDataBoolSync():base("MapSyncMod-SceneDataBool") { }
         protected override void OnEnterGame()
         {
             On.SceneData.SaveMyState_PersistentBoolData += SceneData_SaveMyState_PersistentBoolData;

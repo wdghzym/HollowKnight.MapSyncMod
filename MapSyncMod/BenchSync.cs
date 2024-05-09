@@ -15,7 +15,8 @@ namespace MapSyncMod
 {
     public class BenchSync:BaseSync
     {
-        public BenchSync() : base("ItemSync-BenchUnlock") { }
+        internal BenchSync1000 benchSync1000;
+        public BenchSync() : base("MapSyncMod-BenchUnlock") { benchSync1000 = new(); }
         protected override void OnEnterGame()
         {
             Benchwarp.Events.OnBenchUnlock += Events_OnBenchUnlock;
@@ -39,12 +40,14 @@ namespace MapSyncMod
                         toPlayerId);
                 MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
             }
+            benchSync1000.Events_OnBenchUnlock(benchKey);
             if (Interop.HasRecentItemsDisplay())
                 RecentItemsDisplay.Export.ShowItemChangerSprite($"{getBenchNmae(benchKey)}", "ShopIcons.BenchPin");
 
             MapSyncMod.LogDebug($"send[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
         }
 
+        internal void OnDataReceived1000(DataReceivedEvent dataReceivedEvent) => this.OnDataReceived(dataReceivedEvent);
         protected override void OnDataReceived(DataReceivedEvent dataReceivedEvent)
         {
             if (!MapSyncMod.GS.BenchSync) return;
