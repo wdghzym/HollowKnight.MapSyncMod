@@ -1,4 +1,5 @@
-﻿using MapChanger;
+﻿using ItemChanger;
+using MapChanger;
 using MultiWorldLib;
 using Newtonsoft.Json;
 using System;
@@ -10,75 +11,60 @@ using UnityEngine.SceneManagement;
 
 namespace MapSyncMod
 {
-    public class MapSync
+    public class MapSync:BaseSync
     {
-        public static readonly string SCENE_VISITED_MESSAGE_LABEL = "ItemSync-SceneVisited";
-        public List<int> MapSyncPlayers = new List<int>();
-        public MapSync()
+        public MapSync():base("ItemSync-SceneVisited") { }
+        protected override void OnEnterGame()
         {
-            Init();
-        }
-        public void Init()
-        {
-            Events.OnEnterGame += OnEnterGame;
-            Events.OnQuitToMenu += OnQuitToMenu;
-        }
-        public void UnInit()
-        {
-            Events.OnEnterGame -= OnEnterGame;
-            Events.OnQuitToMenu -= OnQuitToMenu;
-            OnQuitToMenu();
-        }
-        private void OnEnterGame()
-        {
-            if (!ItemSyncMod.ItemSyncMod.ISSettings.IsItemSync) return;
-            MapSyncMod.LogDebug($"OnEnterGame");
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
-            ItemSyncMod.ItemSyncMod.Connection.OnDataReceived += OnDataReceived;
+            if (Interop.HasRecentItemsDisplay())
+                RecentItemsDisplay.ItemDisplayMethods.ShowItemInternal(new ItemChanger.UIDefs.MsgUIDef() { sprite = new ItemChangerSprite("ShopIcons.Marker_B") },
+                    $"{"Map Sync".L()} {(MapSyncMod.GS.MapSync ? "Enabled".L() : "Disabled".L())}");
         }
-        private void OnQuitToMenu()
+        protected override void OnQuitToMenu()
         {
-            MapSyncMod.LogDebug($"OnQuitToMenu");
-
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
-            ItemSyncMod.ItemSyncMod.Connection.OnDataReceived -= OnDataReceived;
-
         }
 
         private void SceneManager_activeSceneChanged(Scene from, Scene to)
         {
+            if (!MapSyncMod.GS.MapSync) return;
             if (to.name == "Quit_To_Menu") return;
+            /*
+             Cinematic_Stag_travel
+             Fungus1_04_boss
+            Fungus2_15_boss
+            Fungus2_15_boss_defeated
+            Ruins1_24_boss
+            Ruins1_24_boss_defeated
+            Mines_18_boss
+            Dream_Nailcollection //梦钉
+            Dream_Guardian_Lurien //守梦者守望者
+            Dream_Guardian_Monomon
+            Dream_Guardian_Hegemol
+             */
             if (!PlayerData.instance.scenesVisited.Contains(to.name))
             {
-                MapSyncMod.LogDebug($"scenesVisited.!Contains[{to.name}]");
-
-                if (ItemSyncMod.ItemSyncMod.Connection == null) return;
-
-                MapSyncMod.LogDebug($"ItemSyncMod.Connection nonull[{to.name}]");
-
-                if (!ItemSyncMod.ItemSyncMod.Connection.IsConnected()) return;
-
-                MapSyncMod.LogDebug($"ItemSyncMod.Connection.IsConnected[{to.name}]");
-
-                foreach (var toPlayerId in MapSyncPlayers)
+                MapSyncMod.LogDebug($"scenesVisited.!Contains[{to.name.BL()}]");
+                if (ItemSyncMod.ItemSyncMod.Connection?.IsConnected() != true) return;
+                foreach (var toPlayerId in SyncPlayers)
                 {
-                    ItemSyncMod.ItemSyncMod.Connection.SendData(SCENE_VISITED_MESSAGE_LABEL,
+                    ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
                         JsonConvert.SerializeObject(to.name),
                         toPlayerId);
                     MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
                 }
-                MapSyncMod.LogDebug($"send[{to.name}]");
+                MapSyncMod.LogDebug($"send[{to.name.BL()}]");
             }
         }
 
-        private void OnDataReceived(DataReceivedEvent dataReceivedEvent)
+        protected override void OnDataReceived(DataReceivedEvent dataReceivedEvent)
         {
-            MapSyncMod.LogDebug($"OnDataReceived[{dataReceivedEvent.Label}]");
-            if (dataReceivedEvent.Label != SCENE_VISITED_MESSAGE_LABEL) return;
-            dataReceivedEvent.Handled = true;
-            string scenes = dataReceivedEvent.Content.Replace("\"", "");
+            if (!MapSyncMod.GS.MapSync) return;
+            string scenes = JsonConvert.DeserializeObject<string>(dataReceivedEvent.Content);
 
-            MapSyncMod.LogDebug($"get[{scenes}]");
+            if (!MapChanger.Tracker.ScenesVisited.Contains(scenes))
+                MapSyncMod.LogDebug($"mapSync get[{scenes.BL()}]     form[{dataReceivedEvent.From}]");
 
             if (!MapChanger.Tracker.ScenesVisited.Contains(scenes))
                 MapChanger.Tracker.ScenesVisited.Add(scenes);
@@ -86,7 +72,7 @@ namespace MapSyncMod
             //GameManager._instance.AddToScenesVisited(dataReceivedEvent.Content);
             if (!PlayerData.instance.scenesVisited.Contains(scenes))
                 PlayerData.instance.scenesVisited.Add(scenes);
-
+            
             GameManager._instance.UpdateGameMap();
             MapChanger.UI.MapUILayerUpdater.Update();
             foreach (var mapObject in MapChanger.MapObjectUpdater.MapObjects)

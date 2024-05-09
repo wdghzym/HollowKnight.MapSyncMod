@@ -1,4 +1,5 @@
 ﻿using Benchwarp;
+using ItemChanger;
 using ItemSyncMod;
 using ItemSyncMod.SyncFeatures.TransitionsFoundSync;
 using MapChanger;
@@ -12,54 +13,28 @@ using System.Threading.Tasks;
 
 namespace MapSyncMod
 {
-    public class BenchSync
+    public class BenchSync:BaseSync
     {
-        public static readonly string BENCH_UNLOCK_MESSAGE_LABEL = "ItemSync-BenchUnlock";
-        public List<int> BenchSyncPlayers = new List<int>();
-        public BenchSync()
+        public BenchSync() : base("ItemSync-BenchUnlock") { }
+        protected override void OnEnterGame()
         {
-            if (Interop.HasBenchwarp())
-                Init();
-        }
-        public void Init()
-        {
-            MapChanger.Events.OnEnterGame += OnEnterGame;
-            MapChanger.Events.OnQuitToMenu += OnQuitToMenu;
-        }
-        public void UnInit()
-        {
-            MapChanger.Events.OnEnterGame -= OnEnterGame;
-            MapChanger.Events.OnQuitToMenu -= OnQuitToMenu;
-            OnQuitToMenu();
-        }
-        private void OnEnterGame()
-        {
-            if (!ItemSyncMod.ItemSyncMod.ISSettings.IsItemSync) return;
-            MapSyncMod.LogDebug($"BenchSync OnEnterGame");
             Benchwarp.Events.OnBenchUnlock += Events_OnBenchUnlock;
-            ItemSyncMod.ItemSyncMod.Connection.OnDataReceived += OnDataReceived;
+            if (Interop.HasRecentItemsDisplay())
+                RecentItemsDisplay.ItemDisplayMethods.ShowItemInternal(new ItemChanger.UIDefs.MsgUIDef() { sprite = new ItemChangerSprite("ShopIcons.Marker_B") },
+                    $"{"Bench Sync".L()} {(MapSyncMod.GS.BenchSync ? "Enabled".L() : "Disabled".L())}");
         }
-
-        private void OnQuitToMenu()
+        protected override void OnQuitToMenu()
         {
-            MapSyncMod.LogDebug($"OnQuitToMenu");
             Benchwarp.Events.OnBenchUnlock -= Events_OnBenchUnlock;
-            ItemSyncMod.ItemSyncMod.Connection.OnDataReceived -= OnDataReceived;
         }
         private void Events_OnBenchUnlock(Benchwarp.BenchKey benchKey)
         {
+            if (!MapSyncMod.GS.BenchSync) return;
             MapSyncMod.LogDebug($"Events_OnBenchUnlock[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
-            if (ItemSyncMod.ItemSyncMod.Connection == null) return;
-
-            MapSyncMod.LogDebug($"ItemSyncMod.Connection nonull[]");
-
-            if (!ItemSyncMod.ItemSyncMod.Connection.IsConnected()) return;
-
-            MapSyncMod.LogDebug($"ItemSyncMod.Connection.IsConnected[]");
-
-            foreach (var toPlayerId in BenchSyncPlayers)
+            if (ItemSyncMod.ItemSyncMod.Connection?.IsConnected() != true) return;
+            foreach (var toPlayerId in SyncPlayers)
             {
-                ItemSyncMod.ItemSyncMod.Connection.SendData(BENCH_UNLOCK_MESSAGE_LABEL,
+                ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
                         JsonConvert.SerializeObject(benchKey),
                         toPlayerId);
                 MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
@@ -70,14 +45,12 @@ namespace MapSyncMod
             MapSyncMod.LogDebug($"send[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
         }
 
-        private void OnDataReceived(DataReceivedEvent dataReceivedEvent)
+        protected override void OnDataReceived(DataReceivedEvent dataReceivedEvent)
         {
-            if (dataReceivedEvent.Label != BENCH_UNLOCK_MESSAGE_LABEL) return;
-            
-            dataReceivedEvent.Handled = true;
+            if (!MapSyncMod.GS.BenchSync) return;
             Benchwarp.BenchKey benchKey = JsonConvert.DeserializeObject<Benchwarp.BenchKey>(dataReceivedEvent.Content);
 
-            MapSyncMod.LogDebug($"BenchSync get Bench[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
+            MapSyncMod.LogDebug($"BenchSync get Bench[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]\n     form[{dataReceivedEvent.From}]");
 
             if (!Benchwarp.Benchwarp.LS.visitedBenchScenes.Contains(benchKey))
             {
@@ -107,13 +80,13 @@ namespace MapSyncMod
                         case "Toll":
                         case "Stag":
                         case "Hot Springs":
-                            return $"{Benchwarp.Localization.Localize(item.areaName)}-{Benchwarp.Localization.Localize(item.name)}";
+                            return $"{item.areaName.BL()}-{item.name.BL()}";
                         default:
-                            return $"{Benchwarp.Localization.Localize(item.name)}";
+                            return $"{item.name.BL()}";
                     }
                 }
             }
-            return $"{Benchwarp.Localization.Localize(benchKey.SceneName)}-{Benchwarp.Localization.Localize(benchKey.RespawnMarkerName)}";
+            return $"{benchKey.SceneName.BL()}-{benchKey.RespawnMarkerName.BL()}";
         }
         static readonly (string, string)[] _lockedBenches = new (string, string)[]
         {

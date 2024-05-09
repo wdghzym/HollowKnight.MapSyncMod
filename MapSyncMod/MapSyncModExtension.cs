@@ -45,8 +45,7 @@ namespace MapSyncMod
 
             MapSyncMod.LogDebug($"readyMetadata count {readyMetadata.Count}");
 
-            MapSyncMod.Instance.MapSync.MapSyncPlayers.Clear();
-            MapSyncMod.Instance.BenchSync.BenchSyncPlayers.Clear();
+
             for (int playerid = 0; playerid < readyMetadata.Count; playerid++)
             {
                 MapSyncMod.LogDebug($"items {readyMetadata[playerid].Count}");                
@@ -58,20 +57,30 @@ namespace MapSyncMod
                 if (playerid == ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId) continue;
                 if (readyMetadata[playerid].ContainsKey(nameof(MapSync)))
                 {
-                    MapSyncMod.Instance.MapSync.MapSyncPlayers.Add(playerid);
+                    MapSyncMod.Instance.MapSync.SyncPlayers.Add(playerid);
                     MapSyncMod.LogDebug($"addMapSyncPlayers playerid[{playerid}]");
                 }
                 if (readyMetadata[playerid].ContainsKey(nameof(BenchSync)))
                 {
-                    MapSyncMod.Instance.BenchSync.BenchSyncPlayers.Add(playerid);
+                    MapSyncMod.Instance.BenchSync.SyncPlayers.Add(playerid);
                     MapSyncMod.LogDebug($"addBenchSyncPlayers playerid[{playerid}]");
+                }
+                if (readyMetadata[playerid].ContainsKey(nameof(PlayDataBoolSync)))
+                {
+                    MapSyncMod.Instance.PlayDataBoolSync.SyncPlayers.Add(playerid);
+                    MapSyncMod.LogDebug($"addPlayDataBoolSync playerid[{playerid}]");
+                }
+                if (readyMetadata[playerid].ContainsKey(nameof(SceneDataBoolSync)))
+                {
+                    MapSyncMod.Instance.SceneDataBoolSync.SyncPlayers.Add(playerid);
+                    MapSyncMod.LogDebug($"addSceneDataBoolSync playerid[{playerid}]");
                 }
             }
         }
 
         private BaseButton MapSyncOnExtensionMenuConstruction(MenuChanger.MenuPage menuPage)
         {
-            MapSyncMod.LogDebug($"MapSyncOnExtensionMenuConstruction");
+            MapSyncMod.LogDebug($"MapSyncOnExtensionMenuConstruction");//x4??
             MenuStateEvents.OnAddReadyMetadata += MapSync_OnAddReadyMetadata;
             MapSyncButton = new ToggleButton(menuPage, " ");
             MapSyncButton.SetValue(true);
@@ -118,6 +127,16 @@ namespace MapSyncMod
             {
                 metadata.Add(nameof(BenchSync), MapSyncMod.Instance.GetVersion());
             }
+
+            if (!metadata.ContainsKey(nameof(PlayDataBoolSync)))
+            {
+                metadata.Add(nameof(PlayDataBoolSync), MapSyncMod.Instance.GetVersion());
+            }
+            if (!metadata.ContainsKey(nameof(SceneDataBoolSync)))
+            {
+                metadata.Add(nameof(SceneDataBoolSync), MapSyncMod.Instance.GetVersion());
+            }
+
             MapSyncMod.LogDebug($"BenchSync_OnAddReadyMetadata add");
         }
     }
