@@ -20,9 +20,9 @@ namespace MapSyncMod
         protected override void OnEnterGame()
         {
             Benchwarp.Events.OnBenchUnlock += Events_OnBenchUnlock;
-            if (Interop.HasRecentItemsDisplay())
+            /*if (Interop.HasRecentItemsDisplay())
                 RecentItemsDisplay.ItemDisplayMethods.ShowItemInternal(new ItemChanger.UIDefs.MsgUIDef() { sprite = new ItemChangerSprite("ShopIcons.Marker_B") },
-                    $"{"Bench Sync".L()} {(MapSyncMod.GS.BenchSync ? "Enabled".L() : "Disabled".L())}");
+                    $"{"Bench Sync".L()} {(MapSyncMod.GS.BenchSync ? "Enabled".L() : "Disabled".L())}");*/
         }
         protected override void OnQuitToMenu()
         {
@@ -32,7 +32,6 @@ namespace MapSyncMod
         {
             if (!MapSyncMod.GS.BenchSync) return;
             MapSyncMod.LogDebug($"Events_OnBenchUnlock[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
-            if (ItemSyncMod.ItemSyncMod.Connection?.IsConnected() != true) return;
             foreach (var toPlayerId in SyncPlayers)
             {
                 ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
@@ -89,8 +88,9 @@ namespace MapSyncMod
                     }
                 }
             }
-            return $"{benchKey.SceneName.BL()}-{benchKey.RespawnMarkerName.BL()}";
+            return $"{benchKey.SceneName.L()}-{benchKey.RespawnMarkerName.L()}";
         }
+        //from Benchwarp
         static readonly (string, string)[] _lockedBenches = new (string, string)[]
         {
             ("Hive_01", "Hive Bench"),

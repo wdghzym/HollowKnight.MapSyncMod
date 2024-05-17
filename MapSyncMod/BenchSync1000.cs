@@ -18,7 +18,6 @@ namespace MapSyncMod
         public BenchSync1000() : base("ItemSync-BenchUnlock") { }
         internal void Events_OnBenchUnlock(Benchwarp.BenchKey benchKey)
         {
-            if (ItemSyncMod.ItemSyncMod.Connection?.IsConnected() != true) return;
             foreach (var toPlayerId in SyncPlayers)
             {
                 ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,

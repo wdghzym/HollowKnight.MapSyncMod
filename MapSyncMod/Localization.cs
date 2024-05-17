@@ -63,12 +63,12 @@ namespace MapSyncMod
 
         public static string Localize(this string text)
         {
-            //if (Benchwarp.GS.OverrideLocalization) return text;
+            if (MapSyncMod.GS.OverrideLocalization) return text;
 
             return _map is not null && _map.TryGetValue(text, out string newText) ? newText : text;
         }
         //public static string BL(this string text) => Benchwarp.Localization.Localize(text);
-        public static string BL(this string text) => Localize(text);
+        public static string BL(this string text) => Benchwarp.Localization.Localize(Localize(text));
         public static string L(this string text) => Localize(text);
     }
 }

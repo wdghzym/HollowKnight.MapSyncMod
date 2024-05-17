@@ -5,13 +5,13 @@ using MultiWorldLib;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static tk2dSpriteCollectionDefinition;
 
 namespace MapSyncMod
 {
@@ -23,10 +23,10 @@ namespace MapSyncMod
             On.SceneData.SaveMyState_PersistentBoolData += SceneData_SaveMyState_PersistentBoolData;
             //On.GameManager.SaveLevelState += SavePersistentBoolItems;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
-
+            /*
             if (Interop.HasRecentItemsDisplay())
                 RecentItemsDisplay.ItemDisplayMethods.ShowItemInternal(new ItemChanger.UIDefs.MsgUIDef() { sprite = new ItemChangerSprite("ShopIcons.Marker_B") },
-                    $"{"Other Sync".L()} {(MapSyncMod.GS.OtherSync ? "Enabled".L() : "Disabled".L())}");
+                    $"{"Other Sync".L()} {(MapSyncMod.GS.OtherSync ? "Enabled".L() : "Disabled".L())}");*/
         }
 
         protected override void OnQuitToMenu()
@@ -45,7 +45,39 @@ namespace MapSyncMod
             if (persistentBoolData?.activated == true)
                 if (GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated != true
                     || (LastPersistentBoolData.ContainsKey(persistentBoolData) && LastPersistentBoolData[persistentBoolData] == false))
-                        send = true;
+                {
+                    string name = Regex.Replace(persistentBoolData.id, @"([\s(\(\)\1-9]+)$", "");
+
+                    send = true;
+                    if (BattleDatas.Contains(name) && MapSyncMod.GS.BossSync)
+                    {
+                        if (bossname.TryGetValue((persistentBoolData.id, persistentBoolData.sceneName), out string showname))
+                            ShowItemChangerSprite(showname, null, null, "ShopIcons.Marker_R");
+                        else
+                            ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_R");
+                    }
+                    else if (LeverDatas.Contains(name) && MapSyncMod.GS.LeverSync)
+                    {
+                        if (MapSyncMod.GS.LeverDisplay)
+                            ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                    }
+                    else if (WallDatas.Contains(name) && MapSyncMod.GS.WallSync)
+                    {
+                        if (MapSyncMod.GS.WallDisplay)
+                            ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                    }
+                    else if (OtherDatas.Contains(name) && MapSyncMod.GS.OtherSync)
+                    {
+                        if (MapSyncMod.GS.OtherDisplay)
+                            ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                    }
+                    else if (MDatas.Contains(name))
+                    {
+                    }
+                    else
+                        send = false;
+                }
+            
             if (FindQueued(persistentBoolData) == null)
                 orig.Invoke(self, persistentBoolData);
             //else
@@ -53,10 +85,8 @@ namespace MapSyncMod
             //if (GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated != true)
             //    MapSyncMod.LogDebug($"------{Regex.Replace(persistentBoolData.id, @"([\s(\(\)\1-9]+)$", "")}");
 
-            if (send && MapSyncMod.GS.OtherSync)
+            if (send)
             {
-                if (!SceneDatas.Contains(Regex.Replace(persistentBoolData.id, @"([\s(\(\)\1-9]+)$", ""))) return;
-                if (ItemSyncMod.ItemSyncMod.Connection?.IsConnected() != true) return;
                 foreach (var toPlayerId in SyncPlayers)
                 {
                     ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
@@ -64,14 +94,11 @@ namespace MapSyncMod
                             toPlayerId);
                     MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
                 }
-                if (Interop.HasRecentItemsDisplay() && MapSyncMod.GS.OtherDisplay)
-                    RecentItemsDisplay.Export.ShowItemChangerSprite($"{persistentBoolData.id}\n from {persistentBoolData.sceneName.BL()}", "ShopIcons.Marker_B");
-
-                MapSyncMod.LogDebug($"sended SceneDataBool {persistentBoolData.activated}-{persistentBoolData.sceneName.BL()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}");
+                MapSyncMod.LogDebug($"sended SceneDataBool {persistentBoolData.activated}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}");
             }
             //else
             //MapSyncMod.LogDebug($"no send BoolData {persistentBoolData.activated}-{persistentBoolData.sceneName}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}");
-            MapSyncMod.LogDebug($"AddLastPersistentBoolData {persistentBoolData.activated}-{persistentBoolData.sceneName.BL()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id} find {LastPersistentBoolData.ContainsKey(persistentBoolData)}");
+            MapSyncMod.LogDebug($"AddLastPersistentBoolData {persistentBoolData.activated}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id} find {LastPersistentBoolData.ContainsKey(persistentBoolData)}");
             //AddLastPersistentBoolData(persistentBoolData);
             if (persistentBoolData.activated == false)
                 AddLastPersistentBoolData(persistentBoolData);
@@ -115,83 +142,152 @@ namespace MapSyncMod
         }
         protected override void OnDataReceived(DataReceivedEvent dataReceivedEvent)
         {
-            if (!MapSyncMod.GS.OtherSync) return;
+            bool get = false;
             PersistentBoolData persistentBoolData = JsonConvert.DeserializeObject<PersistentBoolData>(dataReceivedEvent.Content);
             if (persistentBoolData != null)
+            {
                 if (GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated != true)
-                    if (SceneDatas.Contains(Regex.Replace(persistentBoolData.id, @"([\s(\(\)\1-9]+)$", "")))
+                {
+                    string name = Regex.Replace(persistentBoolData.id, @"([\s(\(\)\1-9]+)$", "");
+
+                    get = true;
+                    if (BattleDatas.Contains(name) && MapSyncMod.GS.BossSync)
+                    {
+                        if (bossname.TryGetValue((persistentBoolData.id, persistentBoolData.sceneName), out string showname))
+                            ShowItemChangerSprite(showname, dataReceivedEvent.From, null, "ShopIcons.Marker_R");
+                        else
+                            ShowItemChangerSprite(persistentBoolData.id, dataReceivedEvent.From, persistentBoolData.sceneName, "ShopIcons.Marker_R");
+                    }
+                    else if (LeverDatas.Contains(name) && MapSyncMod.GS.LeverSync)
+                    {
+                        if (MapSyncMod.GS.LeverDisplay)
+                            ShowItemChangerSprite(persistentBoolData.id, dataReceivedEvent.From, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                    }
+                    else if (WallDatas.Contains(name) && MapSyncMod.GS.WallSync)
+                    {
+                        if (MapSyncMod.GS.WallDisplay)
+                            ShowItemChangerSprite(persistentBoolData.id, dataReceivedEvent.From, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                    }
+                    else if (OtherDatas.Contains(name) && MapSyncMod.GS.OtherSync)
+                    {
+                        if (MapSyncMod.GS.OtherDisplay)
+                            ShowItemChangerSprite(persistentBoolData.id, dataReceivedEvent.From, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                    }
+                    else if (MDatas.Contains(name))
+                    {
+                    }
+                    else
+                        get = false;
+
+                    if (get)
                     {
                         On.SceneData.SaveMyState_PersistentBoolData -= SceneData_SaveMyState_PersistentBoolData;
-                        //Modules/ TransitionFixes
-                        //ItemChanger.Util.SceneDataUtil.SavePersistentBoolItemState(persistentBoolData);
                         GameManager.instance.sceneData.SaveMyState(persistentBoolData);
                         QueuedPersistentBoolData.Add(persistentBoolData);
                         On.SceneData.SaveMyState_PersistentBoolData += SceneData_SaveMyState_PersistentBoolData;
                     }
-            MapSyncMod.LogDebug($"SceneDataBool get {persistentBoolData.activated}-{persistentBoolData.sceneName.BL()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}\n" +
-                $"     form[{dataReceivedEvent.From}]");
-            if (Interop.HasRecentItemsDisplay() && MapSyncMod.GS.OtherDisplay)
-                RecentItemsDisplay.Export.ShowItemChangerSprite($"{persistentBoolData.id}\n from {dataReceivedEvent.From} in {persistentBoolData.sceneName.BL()}", "ShopIcons.Marker_B");
+                }
 
+                MapSyncMod.LogDebug($"SceneDataBool get {persistentBoolData.activated}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}\n" +
+                    $"     form[{dataReceivedEvent.From}]");
+            }
         }
-        List<string> SceneDatas = new List<string>{
+        Dictionary<(string, string), string> bossname = new()
+        {
+            { ("Battle Scene","Mines_18"),"defeatedCrystalGuardian" },
+            { ("Battle Scene","Mines_32"),"defeatedEnragedGuardian" },
+            { ("Zombie Beam Miner Rematch","Mines_32"),null },
+            { ("Battle Scene","Crossroads_04"),"killedGruzMother" },
+            { ("Mawlek Body","Crossroads_09"),"killedMawlek" },
+            { ("Battle Scene","Crossroads_09"),null },
+            { ("Battle Scene","Crossroads_10"),null },//假骑士
+            { ("Battle Scene","Crossroads_11_alt"),null },//巴德尔
+            { ("Battle Scene","Crossroads_ShamanTemple"),null },//巴德尔
+            { ("Battle Control","Ruins2_03"),"killedWatcherKnight" },
+            { ("Battle Scene","Fungus3_23"),"killedTraitorLord" },
+            { ("Battle Scene","Deepnest_32"),null },//zote2
+            { ("Battle Scene","Fungus1_21"),null },//grub
+            { ("Battle Scene","Ruins_House_01"),null },//grub
+            { ("Battle Scene","Room_Fungus_Shaman"),"Squit Battle" },
+            { ("Battle Scene","Fungus3_39"),"Love Key Battle" },
+            { ("Battle Scene","Fungus3_05"),"Garden Cornifer Battle" },
+            { ("Battle Scene","Fungus3_10"),"Garden Stag Battle" },
+            { ("Battle Scene","White_Palace_02"),"White Palace Battle" },
+            { ("Battle Scene","Waterways_09"),"Waterways Cornifer Battle" },
+            { ("Battle Scene","Ruins2_01"),"Watcher's Spire Battle" },
+            { ("Battle Scene","Crossroads_22"),"Glowing Womb Battle " },
+
+            { ("Battle Scene","Ruins2_09"), "City Vessel Fragment Battle"},
+            { ("Battle Scene Ore","Abyss_17"),"Basin Palc Ore Battle" },
+            { ("Battle Scene v2","Ruins1_05"),"City Toll Battle" },
+            { ("Battle Scene","Ruins1_09"),"Sanctum Battle 1" },
+            { ("Battle Scene v2","Ruins1_23"),"Sanctum Battle 2" },
+            { ("Battle Scene v2","Ruins1_31"),"Shade Soul Battle" },
+            { ("Battle Scene","Crossroads_08"),"Hot Springs Battle" },
+            { ("Battle Scene v2","Fungus1_32"),"Moss Knight Battle" },
+            { ("Battle Scene v2","Fungus2_05"),"Shrumal Ogre Battle" },
+        };
+
+        List<string> BattleDatas = new List<string>{
             "Battle Scene",
             "Battle Scene v",
             "Battle Scene Ore",//盆地矿石战
             "Battle Control",
-            "Break Floor",
-            "Quake Floor",
-            "Quake Floor Glass",
-            "mine_1_quake_floor",
+            "Mawlek Body",//
+            "Blocker",//巴德尔
+            "Zombie Beam Miner Rematch",//暴怒守卫
+        };
+        List<string> LeverDatas = new List<string>
+        {
+            "Gate Switch",
+            "Toll Gate Switch",
+            "Toll Gate Machine",
+            "Ruins Lever",
+            "Mantis Lever",
+            "Mines Lever",
+            "Mines Lever New",
+            "Gate Mantis",
+            "Ruins Lever Remade",
+            "Waterways_Crank_Lever",
+            "White Palace Orb Lever",
+            "WP Lever",
+            "Bone Gate",
+            "infected_door",
+        };
+        List<string> WallDatas = new List<string>
+        {
             "Break Wall",
             "Breakable Wall",
             "Breakable Wall Waterways",
             "Breakable Wall_Silhouette",
             "One Way Wall",
             "Breakable Wall Ruin Lift",
-            "Gate Switch",
-            "Toll Gate Switch",
-            "Toll Gate Machine",
+            "Breakable Wall grimm",
+            "Breakable Wall top",
+            "Hive Break Wall",
+            "break_wall_masksa",
+            "break_wall_masks",
+        };
+        List<string> OtherDatas = new List<string>{
+            "Break Floor",
+            "Quake Floor",
+            "Quake Floor Glass",
+            "mine_1_quake_floor",
             "Raising Pillar",
             "Vine Platform",
             "Chain Platform",
             "Hive Breakable Pillar",
-            "Ruins Lever",
-            "Mantis Lever",
-            "Mines Lever",
-            "Mines Lever New",
-            "Gate Mantis",
-            "Tute Door",
             "Collapser Small",
-            "Ruins Lever Remade",
-            "Waterways_Crank_Lever",
-            "White Palace Orb Lever",
-            "WP Lever",
-            //"break_wall_masks",
-            "Breakable Wall grimm",
-            "Breakable Wall top",
-            "Hive Break Wall",
             "Garden Slide Floor",
             "Resting Grounds Slide Floor",
             "Fungus Break Floor",
-            //"boss_floor_remasker",
-            "Bone Gate",
-            //"Gate Mantis",
-            "infected_door",
             "Collapser Tute",
+
             "Door Destroyer",
             "Door",
-
-            "Mawlek Body",//
-            "Blocker",//巴德尔?
+            "Tute Door",
             "Chest",//巴德尔箱子
-            "mask_",//巴德尔阴影
-            "Zombie Beam Miner Rematch",//暴怒守卫
             //破墙后的阴影 无法消除
-            "break_wall_masksa",
-            "Secret Mask",
-            "break_wall_masks",
-            "Inverse Remasker",
             /*
             [INFO]:[MapSyncMod] - ------Remasker
             [INFO]:[MapSyncMod] - ------Inverse Remasker
@@ -207,85 +303,17 @@ namespace MapSyncMod
             [INFO]:[MapSyncMod] - ------tram_inverse mask
             [INFO]:[MapSyncMod] - ------mask tram left front
              */
+        };
+
+        List<string> MDatas = new List<string>
+        {
+            "Secret Mask",
+            "mask_",//巴德尔阴影
+            "Mask Bottom",
+            "Inverse Remasker",
             //防止同场景覆盖
             "Toll Machine Bench",
             "Hive Bench"
         };
-        /*
-         * 
-				"id": "boss_floor_remasker",
-				"sceneName": "Ruins2_03",
-
-				"id": "Bone Gate",
-				"sceneName": "Crossroads_ShamanTemple",
-
-        PersistentBoolData False-Crossroads_08
-[INFO]:[MapSyncMod] -   False-break_wall_masksa
-
-
-
-        失败
-        电饭煲不关门 但人在
-[INFO]:[MapSyncMod] - PersistentBoolData True-Crossroads_09
-[INFO]:[MapSyncMod] -   False-Mawlek Body
-
-
-        
-        水晶守卫
-            defeatedMegaBeamMiner
-        梦钉场景?
-            enteredDreamWorld
-
-        
-        playdata int ghost
-        nameof(PlayerData.xeroDefeated),
-        nameof(PlayerData.noEyesDefeated),
-        nameof(PlayerData.elderHuDefeated),
-        nameof(PlayerData.markothDefeated),
-        nameof(PlayerData.galienDefeated),
-        nameof(PlayerData.mumCaterpillarDefeated),
-        nameof(PlayerData.aladarSlugDefeated),
-
-        openedRestingGrounds02?
-        竞技场
-
-        //未发现参数
-        斯莱
-        表哥
-        蜂巢骑士
-        竞技场右 潜伏者 
-[INFO]:[MapSyncMod] - send to id[1] name[2]
-[INFO]:[MapSyncMod] - send[GG_Lurker]
-[INFO]:[MapSyncMod] - disablePause-False
-[INFO]:[MapSyncMod] - disablePause-False
-[INFO]:[MapSyncMod] - hazardRespawnFacingRight-True
-[INFO]:[MapSyncMod] - isInvincible-False
-[INFO]:[MapSyncMod] - hazardRespawnFacingRight-True
-[INFO]:[MapSyncMod] - hazardRespawnFacingRight-True
-[INFO]:[MapSyncMod] - hazardRespawnFacingRight-True
-[INFO]:[MapSyncMod] - hazardRespawnFacingRight-True
-[INFO]:[MapSyncMod] - hazardRespawnFacingRight-True
-[INFO]:[MapSyncMod] - killedPaleLurker-True
-[INFO]:[MapSyncMod] - newDataPaleLurker-True
-[INFO]:[MapSyncMod] - disablePause-True
-[INFO]:[MapSyncMod] - disablePause-False
-[INFO]:[MapSyncMod] - hazardRespawnFacingRight-False
-[INFO]:[MapSyncMod] - hazardRespawnFacingRight-True
-[INFO]:[MapSyncMod] - PersistentBoolData False-GG_Lurker
-[INFO]:[MapSyncMod] -   False-Secret Mask (1)
-[INFO]:[MapSyncMod] - ------Secret Mask
-[INFO]:[MapSyncMod] - PersistentBoolData False-GG_Lurker
-[INFO]:[MapSyncMod] -   False-Secret Mask
-[INFO]:[MapSyncMod] - ------Secret Mask
-[INFO]:[MapSyncMod] - PersistentBoolData False-GG_Lurker
-[INFO]:[MapSyncMod] -   False-Shiny Item
-[INFO]:[MapSyncMod] - ------Shiny Item
-[INFO]:[MapSyncMod] - PersistentIntData 0-GG_Lurker
-[INFO]:[MapSyncMod] -   True-Soul Totem-Soul_Totem-Pale_Lurker
-[INFO]:[MapSyncMod] - PersistentBoolData True-GG_Lurker
-[INFO]:[MapSyncMod] -   False-Shiny Item-Simple_Key-Lurker
-[INFO]:[MapSyncMod] - ------Shiny Item-Simple_Key-Lurker
-[INFO]:[MapSyncMod] - isInvincible-True
-        */
-    }
+        }
 }

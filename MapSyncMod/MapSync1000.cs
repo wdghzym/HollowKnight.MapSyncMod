@@ -17,7 +17,6 @@ namespace MapSyncMod
 
         internal void SceneManager_activeSceneChanged(Scene from, Scene to)
         {
-            if (ItemSyncMod.ItemSyncMod.Connection?.IsConnected() != true) return;
             foreach (var toPlayerId in SyncPlayers)
             {
                 ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,

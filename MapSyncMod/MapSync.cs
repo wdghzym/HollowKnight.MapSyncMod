@@ -18,9 +18,9 @@ namespace MapSyncMod
         protected override void OnEnterGame()
         {
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
-            if (Interop.HasRecentItemsDisplay())
+            /*if (Interop.HasRecentItemsDisplay())
                 RecentItemsDisplay.ItemDisplayMethods.ShowItemInternal(new ItemChanger.UIDefs.MsgUIDef() { sprite = new ItemChangerSprite("ShopIcons.Marker_B") },
-                    $"{"Map Sync".L()} {(MapSyncMod.GS.MapSync ? "Enabled".L() : "Disabled".L())}");
+                    $"{"Map Sync".L()} {(MapSyncMod.GS.MapSync ? "Enabled".L() : "Disabled".L())}");*/
         }
         protected override void OnQuitToMenu()
         {
@@ -46,8 +46,7 @@ namespace MapSyncMod
              */
             if (!PlayerData.instance.scenesVisited.Contains(to.name))
             {
-                MapSyncMod.LogDebug($"scenesVisited.!Contains[{to.name.BL()}]");
-                if (ItemSyncMod.ItemSyncMod.Connection?.IsConnected() != true) return;
+                MapSyncMod.LogDebug($"scenesVisited.!Contains[{to.name.L()}]");
                 foreach (var toPlayerId in SyncPlayers)
                 {
                     ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
@@ -56,7 +55,7 @@ namespace MapSyncMod
                     MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
                 }
                 mapSync1000.SceneManager_activeSceneChanged(from, to);
-                MapSyncMod.LogDebug($"send[{to.name.BL()}]");
+                MapSyncMod.LogDebug($"send[{to.name.L()}]");
             }
         }
 
@@ -67,7 +66,7 @@ namespace MapSyncMod
             string scenes = JsonConvert.DeserializeObject<string>(dataReceivedEvent.Content);
 
             if (!MapChanger.Tracker.ScenesVisited.Contains(scenes))
-                MapSyncMod.LogDebug($"mapSync get[{scenes.BL()}]     form[{dataReceivedEvent.From}]");
+                MapSyncMod.LogDebug($"mapSync get[{scenes.L()}]     form[{dataReceivedEvent.From}]");
 
             if (!MapChanger.Tracker.ScenesVisited.Contains(scenes))
                 MapChanger.Tracker.ScenesVisited.Add(scenes);

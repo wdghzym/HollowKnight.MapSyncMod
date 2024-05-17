@@ -43,12 +43,33 @@ namespace MapSyncMod
             SyncPlayers.Clear();
         }
         protected virtual void OnQuitToMenu() { }
-        private void OnDataReceivedInternal(DataReceivedEvent dataReceivedEvent) 
+        private void OnDataReceivedInternal(DataReceivedEvent dataReceivedEvent)
         {
             if (dataReceivedEvent.Label != MESSAGE_LABEL) return;
             dataReceivedEvent.Handled = true;
             OnDataReceived(dataReceivedEvent);
         }
         protected virtual void OnDataReceived(DataReceivedEvent dataReceivedEvent) { }
+        protected void ShowItemChangerSprite(string name, string playername, string from, string spriteKey)
+        {
+            if (name is not null)
+                if (Interop.HasRecentItemsDisplay())
+                    if (playername is not null)
+                    {
+                        if (from is null)
+                            RecentItemsDisplay.Export.ShowItemChangerSprite($"{name.L()}\n from {playername}", spriteKey);
+                        else
+                            RecentItemsDisplay.Export.ShowItemChangerSprite($"{name.L()}\n from {playername} in {from.L()}", spriteKey);
+                    }
+                    else
+                    {
+                        if (from is null)
+                            RecentItemsDisplay.Export.ShowItemChangerSprite($"{name.L()}", spriteKey);
+                        else
+                            RecentItemsDisplay.Export.ShowItemChangerSprite($"{name.L()}\n from {from.L()}", spriteKey);
+
+                    }
+        }
+
     }
 }

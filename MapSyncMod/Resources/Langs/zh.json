@@ -666,15 +666,23 @@
     //MapSyncMod
     "Map Sync": "地图 同步",
     "Bench Sync": "椅子 同步",
+    "Battle Boss Sync": "战斗 Boss 同步",
+    "battle scene and boss": "关门战 和 BOSS",
+    "Pantheons Sync": "五门同步",
+    "Lever Sync": "拉杆同步",
+    "Lever Sync Display": "拉杆同步的显示",
+    "Break Wall Sync": "破墙同步",
+    "Break Wall Sync Display": "破墙同步的显示",
     "Other Sync": "其他 同步",
-    "Other Sync (When Scene Changed)": "其他 同步 (切换场景时)",
-    "lever, wall, battle, door, and other": "拉杆, 墙, 战斗, 门, 等等",
+    "sly Floor Chest Door ..": "斯莱 地板 箱子 门...",
     "Other Sync Display": "其他同步的显示",
     "Display in top right": "显示在右上",
     "Enabled": "开启",
-    "Disabled": "关闭"
+    "Disabled": "关闭",
 
+    "hornet1Defeated": "击败大黄蜂1"
     //"": "",
+
 
 
 }

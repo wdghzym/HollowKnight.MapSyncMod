@@ -98,6 +98,17 @@ namespace MapSyncMod
                     MapSyncMod.Instance.SceneDataBoolSync.SyncPlayers.Add(playerid);
                     MapSyncMod.LogDebug($"addSceneDataBoolSync playerid[{playerid}]");
                 }
+                if (readyMetadata[playerid].ContainsKey(nameof(PlayDataIntSync)))
+                {
+                    MapSyncMod.Instance.PlayDataIntSync.SyncPlayers.Add(playerid);
+                    MapSyncMod.LogDebug($"addPlayDataIntSync playerid[{playerid}]");
+                }
+                if (readyMetadata[playerid].ContainsKey(nameof(BossDoorSync)))
+                {
+                    MapSyncMod.Instance.BossDoorSync.SyncPlayers.Add(playerid);
+                    MapSyncMod.LogDebug($"addBossDoorSync playerid[{playerid}]");
+                }
+                
             }
         }
 
@@ -158,6 +169,14 @@ namespace MapSyncMod
             if (!metadata.ContainsKey(nameof(SceneDataBoolSync)))
             {
                 metadata.Add(nameof(SceneDataBoolSync), MapSyncMod.Instance.GetVersion());
+            }
+            if (!metadata.ContainsKey(nameof(PlayDataIntSync)))
+            {
+                metadata.Add(nameof(PlayDataIntSync), MapSyncMod.Instance.GetVersion());
+            }
+            if (!metadata.ContainsKey(nameof(BossDoorSync)))
+            {
+                metadata.Add(nameof(BossDoorSync), MapSyncMod.Instance.GetVersion());
             }
 
             MapSyncMod.LogDebug($"BenchSync_OnAddReadyMetadata add");
