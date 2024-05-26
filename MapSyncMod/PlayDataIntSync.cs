@@ -25,22 +25,30 @@ namespace MapSyncMod
         private void PlayerData_SetInt(On.PlayerData.orig_SetInt orig, PlayerData self, string intName, int value)
         {
             bool send = false;
-            if (value == 2 && PlayerData.instance?.GetInt(intName) != 2)
-                if (BossDatas.Contains(intName) && MapSyncMod.GS.BossSync)
-                    send = true;
-            orig.Invoke(self, intName, value);
-            if (send)
+            try
             {
-                foreach (var toPlayerId in SyncPlayers)
-                {
-                    ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
-                            JsonConvert.SerializeObject(intName),
-                            toPlayerId);
-                    MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
-                }
-                ShowItemChangerSprite(intName, null, null, "ShopIcons.Marker_R");
-                MapSyncMod.LogDebug($"sended setBool {intName}-{value}");
+                if (value == 2 && PlayerData.instance?.GetInt(intName) != 2)
+                    if (BossDatas.Contains(intName) && MapSyncMod.GS.BossSync)
+                        send = true;
             }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
+            orig.Invoke(self, intName, value);
+            try
+            {
+                if (send)
+                {
+                    foreach (var toPlayerId in SyncPlayers)
+                    {
+                        ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
+                                JsonConvert.SerializeObject(intName),
+                                toPlayerId);
+                        MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+                    }
+                    ShowItemChangerSprite(intName, null, null, "ShopIcons.Marker_R");
+                    MapSyncMod.LogDebug($"sended setBool {intName}-{value}");
+                }
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
         }
 
         protected override void OnDataReceived(DataReceivedEvent dataReceivedEvent)

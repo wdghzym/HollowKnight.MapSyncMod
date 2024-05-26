@@ -28,47 +28,55 @@ namespace MapSyncMod
         private void PlayerData_SetBool(On.PlayerData.orig_SetBool orig, PlayerData self, string boolName, bool value)
         {
             bool send = false;
-            if (value == true && PlayerData.instance?.GetBool(boolName) == false)
-            {  send = true;
-                
-                if (BossDatas.Contains(boolName) && MapSyncMod.GS.BossSync)
-                {
-                    if (ShowDatas.Contains(boolName))
-                        ShowItemChangerSprite(boolName, null, null, "ShopIcons.Marker_R");
-                }
-                else if (LeverDatas.Contains(boolName) && MapSyncMod.GS.LeverSync)
-                {
-                    if (MapSyncMod.GS.LeverDisplay)
-                        ShowItemChangerSprite(boolName, null, null, "ShopIcons.Marker_W");
-                }
-                else if (WallDatas.Contains(boolName) && MapSyncMod.GS.WallSync)
-                {
-                    if (MapSyncMod.GS.WallDisplay)
-                        ShowItemChangerSprite(boolName, null, null, "ShopIcons.Marker_W");
-                }
-                else if (OtherDatas.Contains(boolName) && MapSyncMod.GS.OtherSync)
-                {
-                    if (MapSyncMod.GS.OtherDisplay)
-                        ShowItemChangerSprite(boolName, null, null, "ShopIcons.Marker_W");
-                }
-                else
-                    send = false;
-            }
-            orig.Invoke(self, boolName, value);
-            if (send)
+            try
             {
-                foreach (var toPlayerId in SyncPlayers)
+                if (value == true && PlayerData.instance?.GetBool(boolName) == false)
                 {
-                    ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
-                            JsonConvert.SerializeObject(boolName),
-                            toPlayerId);
-                    MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+                    send = true;
+
+                    if (BossDatas.Contains(boolName) && MapSyncMod.GS.BossSync)
+                    {
+                        if (ShowDatas.Contains(boolName))
+                            ShowItemChangerSprite(boolName, null, null, "ShopIcons.Marker_R");
+                    }
+                    else if (LeverDatas.Contains(boolName) && MapSyncMod.GS.LeverSync)
+                    {
+                        if (MapSyncMod.GS.LeverDisplay)
+                            ShowItemChangerSprite(boolName, null, null, "ShopIcons.Marker_W");
+                    }
+                    else if (WallDatas.Contains(boolName) && MapSyncMod.GS.WallSync)
+                    {
+                        if (MapSyncMod.GS.WallDisplay)
+                            ShowItemChangerSprite(boolName, null, null, "ShopIcons.Marker_W");
+                    }
+                    else if (OtherDatas.Contains(boolName) && MapSyncMod.GS.OtherSync)
+                    {
+                        if (MapSyncMod.GS.OtherDisplay)
+                            ShowItemChangerSprite(boolName, null, null, "ShopIcons.Marker_W");
+                    }
+                    else
+                        send = false;
                 }
-
-                MapSyncMod.LogDebug($"sended setBool {boolName}-{value}");
             }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
+            orig.Invoke(self, boolName, value);
+            try
+            {
+                if (send)
+                {
+                    foreach (var toPlayerId in SyncPlayers)
+                    {
+                        ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
+                                JsonConvert.SerializeObject(boolName),
+                                toPlayerId);
+                        MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+                    }
 
-        }
+                    MapSyncMod.LogDebug($"sended setBool {boolName}-{value}");
+                }
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
+}
         protected override void OnDataReceived(DataReceivedEvent dataReceivedEvent)
         {
             string boolName = JsonConvert.DeserializeObject<string>(dataReceivedEvent.Content);

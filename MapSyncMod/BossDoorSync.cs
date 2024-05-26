@@ -24,7 +24,11 @@ namespace MapSyncMod
 
         private void SceneManager_activeSceneChanged(Scene arg0, Scene arg1)
         {
-            update();
+            try
+            {
+                update();
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
         }
 
         protected override void OnQuitToMenu()

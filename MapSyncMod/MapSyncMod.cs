@@ -70,6 +70,7 @@ namespace MapSyncMod
             mapSyncModExtension = new MapSyncModExtension();
             //On.GameManager.LoadGame += GameManager_LoadGame;
             //On.GameManager.ReturnToMainMenu += GameManager_ReturnToMainMenu;
+#if DEBUG
             MapChanger.Events.OnEnterGame += OnEnterGame;
             MapChanger.Events.OnQuitToMenu += OnQuitToMenu;
             /*
@@ -80,8 +81,10 @@ namespace MapSyncMod
             //On.PlayerData.SetInt += PlayerData_SetInt;
             
             //On.PlayerData
+#endif
         }
 
+#if DEBUG
         private void PlayerData_SetInt(On.PlayerData.orig_SetInt orig, PlayerData self, string intName, int value)
         {
             switch (intName)
@@ -127,7 +130,7 @@ namespace MapSyncMod
                 //if (GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated != true)
                     //if (GameManager.instance.sceneData.FindMyState(persistentBoolData) is not null)
                     //    if (GameManager.instance.sceneData.FindMyState(persistentBoolData).activated != persistentBoolData.activated)
-                    ShowMessage($"PersistentBoolData {persistentBoolData.activated}-{persistentBoolData.sceneName.L()}\n  {persistentBoolData.semiPersistent}-{persistentBoolData.id} last{GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated}");
+                    ShowMessage($"PersistentBoolData {persistentBoolData.activated}-{persistentBoolData.sceneName}-{persistentBoolData.sceneName.L()}\n  {persistentBoolData.semiPersistent}-{persistentBoolData.id} last{GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated}");
 
             orig.Invoke(self, persistentBoolData);
  }
@@ -139,6 +142,7 @@ namespace MapSyncMod
                 ShowMessage($"PersistentIntData {persistentIntData.value}-{persistentIntData.sceneName.L()}\n  {persistentIntData.semiPersistent}-{persistentIntData.id}");
         }
 
+#endif
         void ShowMessage(string message)
         {
 #if DEBUG
@@ -148,9 +152,9 @@ namespace MapSyncMod
         }
         private void OnEnterGame()
         {
+#if DEBUG
             MapSyncMod.LogDebug($"MapSyncMod OnEnterGame");
 
-#if DEBUG
             //ItemSyncMod.ItemSyncMod.Connection.OnConnectedPlayersChanged += OnConnectedPlayersChanged;
             //ItemSyncMod.ItemSyncMod.ISSettings.AddSentData
             //MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.

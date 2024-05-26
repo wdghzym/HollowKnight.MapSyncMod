@@ -29,34 +29,38 @@ namespace MapSyncMod
 
         private void SceneManager_activeSceneChanged(Scene from, Scene to)
         {
-            if (!MapSyncMod.GS.MapSync) return;
-            if (to.name == "Quit_To_Menu") return;
-            /*
-             Cinematic_Stag_travel
-             Fungus1_04_boss
-            Fungus2_15_boss
-            Fungus2_15_boss_defeated
-            Ruins1_24_boss
-            Ruins1_24_boss_defeated
-            Mines_18_boss
-            Dream_Nailcollection //梦钉
-            Dream_Guardian_Lurien //守梦者守望者
-            Dream_Guardian_Monomon
-            Dream_Guardian_Hegemol
-             */
-            if (!PlayerData.instance.scenesVisited.Contains(to.name))
+            try
             {
-                MapSyncMod.LogDebug($"scenesVisited.!Contains[{to.name.L()}]");
-                foreach (var toPlayerId in SyncPlayers)
+                if (!MapSyncMod.GS.MapSync) return;
+                if (to.name == "Quit_To_Menu") return;
+                /*
+                 Cinematic_Stag_travel
+                 Fungus1_04_boss
+                Fungus2_15_boss
+                Fungus2_15_boss_defeated
+                Ruins1_24_boss
+                Ruins1_24_boss_defeated
+                Mines_18_boss
+                Dream_Nailcollection //梦钉
+                Dream_Guardian_Lurien //守梦者守望者
+                Dream_Guardian_Monomon
+                Dream_Guardian_Hegemol
+                 */
+                if (!PlayerData.instance.scenesVisited.Contains(to.name))
                 {
-                    ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
-                        JsonConvert.SerializeObject(to.name),
-                        toPlayerId);
-                    MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+                    MapSyncMod.LogDebug($"scenesVisited.!Contains[{to.name.L()}]");
+                    foreach (var toPlayerId in SyncPlayers)
+                    {
+                        ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
+                            JsonConvert.SerializeObject(to.name),
+                            toPlayerId);
+                        MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+                    }
+                    mapSync1000.SceneManager_activeSceneChanged(from, to);
+                    MapSyncMod.LogDebug($"send[{to.name.L()}]");
                 }
-                mapSync1000.SceneManager_activeSceneChanged(from, to);
-                MapSyncMod.LogDebug($"send[{to.name.L()}]");
             }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
         }
 
         internal void OnDataReceived1000(DataReceivedEvent dataReceivedEvent) => this.OnDataReceived(dataReceivedEvent);

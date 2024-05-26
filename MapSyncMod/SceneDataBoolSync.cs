@@ -39,70 +39,79 @@ namespace MapSyncMod
         }
         private void SceneData_SaveMyState_PersistentBoolData(On.SceneData.orig_SaveMyState_PersistentBoolData orig, SceneData self, PersistentBoolData persistentBoolData)
         {
-            bool send = false;
-            //LastPersistentBoolData.TryGetValue((persistentBoolData.sceneName, persistentBoolData.id))
-
-            if (persistentBoolData?.activated == true)
-                if (GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated != true
-                    || (LastPersistentBoolData.ContainsKey(persistentBoolData) && LastPersistentBoolData[persistentBoolData] == false))
-                {
-                    string name = Regex.Replace(persistentBoolData.id, @"([\s(\(\)\1-9]+)$", "");
-
-                    send = true;
-                    if (BattleDatas.Contains(name) && MapSyncMod.GS.BossSync)
-                    {
-                        if (bossname.TryGetValue((persistentBoolData.id, persistentBoolData.sceneName), out string showname))
-                            ShowItemChangerSprite(showname, null, null, "ShopIcons.Marker_R");
-                        else
-                            ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_R");
-                    }
-                    else if (LeverDatas.Contains(name) && MapSyncMod.GS.LeverSync)
-                    {
-                        if (MapSyncMod.GS.LeverDisplay)
-                            ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
-                    }
-                    else if (WallDatas.Contains(name) && MapSyncMod.GS.WallSync)
-                    {
-                        if (MapSyncMod.GS.WallDisplay)
-                            ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
-                    }
-                    else if (OtherDatas.Contains(name) && MapSyncMod.GS.OtherSync)
-                    {
-                        if (MapSyncMod.GS.OtherDisplay)
-                            ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
-                    }
-                    else if (MDatas.Contains(name))
-                    {
-                    }
-                    else
-                        send = false;
-                }
-            
+            bool? lastActivated = false;
+            try
+            {
+                lastActivated = GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated;
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
             if (FindQueued(persistentBoolData) == null)
                 orig.Invoke(self, persistentBoolData);
             //else
             //    send = false;
             //if (GameManager.instance.sceneData.FindMyState(persistentBoolData)?.activated != true)
             //    MapSyncMod.LogDebug($"------{Regex.Replace(persistentBoolData.id, @"([\s(\(\)\1-9]+)$", "")}");
-
-            if (send)
+            try
             {
-                foreach (var toPlayerId in SyncPlayers)
-                {
-                    ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
-                            JsonConvert.SerializeObject(persistentBoolData),
-                            toPlayerId);
-                    MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
-                }
-                MapSyncMod.LogDebug($"sended SceneDataBool {persistentBoolData.activated}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}");
-            }
-            //else
-            //MapSyncMod.LogDebug($"no send BoolData {persistentBoolData.activated}-{persistentBoolData.sceneName}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}");
-            MapSyncMod.LogDebug($"AddLastPersistentBoolData {persistentBoolData.activated}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id} find {LastPersistentBoolData.ContainsKey(persistentBoolData)}");
-            //AddLastPersistentBoolData(persistentBoolData);
-            if (persistentBoolData.activated == false)
-                AddLastPersistentBoolData(persistentBoolData);
+                bool send = false;
+                //LastPersistentBoolData.TryGetValue((persistentBoolData.sceneName, persistentBoolData.id))
 
+                if (persistentBoolData?.activated == true)
+                    if (lastActivated != true
+                        || (LastPersistentBoolData.ContainsKey(persistentBoolData) && LastPersistentBoolData[persistentBoolData] == false))
+                    {                            
+                        string name = Regex.Replace(persistentBoolData.id, @"([\s(\(\)\1-9]+)$", "");
+
+                        send = true;
+                        if (BattleDatas.Contains(name) && MapSyncMod.GS.BossSync)
+                        {
+                            if (bossname.TryGetValue((persistentBoolData.id, persistentBoolData.sceneName), out string showname))
+                                ShowItemChangerSprite(showname, null, null, "ShopIcons.Marker_R");
+                            else
+                                ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_R");
+                        }
+                        else if (LeverDatas.Contains(name) && MapSyncMod.GS.LeverSync)
+                        {
+                            if (MapSyncMod.GS.LeverDisplay)
+                                ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                        }
+                        else if (WallDatas.Contains(name) && MapSyncMod.GS.WallSync)
+                        {
+                            if (MapSyncMod.GS.WallDisplay)
+                                ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                        }
+                        else if (OtherDatas.Contains(name) && MapSyncMod.GS.OtherSync)
+                        {
+                            if (MapSyncMod.GS.OtherDisplay)
+                                ShowItemChangerSprite(persistentBoolData.id, null, persistentBoolData.sceneName, "ShopIcons.Marker_B");
+                        }
+                        else if (MDatas.Contains(name))
+                        {
+                        }
+                        else
+                            send = false;
+                    }
+
+                if (send)
+                {
+                    foreach (var toPlayerId in SyncPlayers)
+                    {
+                        ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
+                                JsonConvert.SerializeObject(persistentBoolData),
+                                toPlayerId);
+                        MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+                    }
+                    MapSyncMod.LogDebug($"sended SceneDataBool {persistentBoolData.activated}-{persistentBoolData.sceneName}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}");
+                }
+                //else
+                //MapSyncMod.LogDebug($"no send BoolData {persistentBoolData.activated}-{persistentBoolData.sceneName}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}");
+                MapSyncMod.LogDebug($"AddLastPersistentBoolData {persistentBoolData.activated}-{persistentBoolData.sceneName}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id} find {LastPersistentBoolData.ContainsKey(persistentBoolData)}");
+
+                //if (persistentBoolData.activated == false)
+                    AddLastPersistentBoolData(persistentBoolData);
+
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
         }
         //花园关门战附近 如果掉入荆棘 之后将不会接受到首次的true
         private static Dictionary<PersistentBoolData, bool> LastPersistentBoolData = new();
@@ -110,20 +119,24 @@ namespace MapSyncMod
         void AddLastPersistentBoolData(PersistentBoolData pbd)
         {
             if(LastPersistentBoolData.ContainsKey(pbd))
-                LastPersistentBoolData[pbd] = false;
+                LastPersistentBoolData[pbd] = pbd.activated;
             else
-                LastPersistentBoolData.Add(pbd, false);
+                LastPersistentBoolData.Add(pbd, pbd.activated);
         }
         private static  List<PersistentBoolData> QueuedPersistentBoolData = new();
 
         private void SceneManager_activeSceneChanged(Scene from, Scene to)
         {
-            LastPersistentBoolData.Clear();
-            //QueuedPersistentBoolData.Clear();
-            //LastPersistentBoolData = LastPersistentBoolData.Where(x => x.sceneName != to.name).ToList(); 
-            QueuedPersistentBoolData = QueuedPersistentBoolData.Where(x=>x.sceneName!= to.name).ToList();
-            MapSyncMod.LogDebug($"BoolData.Clear");
-            //SceneData.instance.persistentBoolItems.
+            try
+            {
+                LastPersistentBoolData.Clear();
+                //QueuedPersistentBoolData.Clear();
+                //LastPersistentBoolData = LastPersistentBoolData.Where(x => x.sceneName != to.name).ToList(); 
+                QueuedPersistentBoolData = QueuedPersistentBoolData.Where(x => x.sceneName != to.name).ToList();
+                MapSyncMod.LogDebug($"BoolData.Clear");
+                //SceneData.instance.persistentBoolItems.
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
         }
         /*
         private PersistentBoolData FindLast(PersistentBoolData persistentBoolData)
@@ -135,9 +148,14 @@ namespace MapSyncMod
         }*/
         private PersistentBoolData FindQueued(PersistentBoolData persistentBoolData)
         {
-            foreach (var item in QueuedPersistentBoolData)
-                if (persistentBoolData.id == item.id && persistentBoolData.sceneName == item.sceneName)
-                    return item;
+            try
+            {
+                foreach (var item in QueuedPersistentBoolData)
+                    if (persistentBoolData.id == item.id && persistentBoolData.sceneName == item.sceneName)
+                        return item;
+                return null;
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
             return null;
         }
         protected override void OnDataReceived(DataReceivedEvent dataReceivedEvent)
@@ -188,7 +206,7 @@ namespace MapSyncMod
                     }
                 }
 
-                MapSyncMod.LogDebug($"SceneDataBool get {persistentBoolData.activated}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}\n" +
+                MapSyncMod.LogDebug($"SceneDataBool get {persistentBoolData.activated}-{persistentBoolData.sceneName}-{persistentBoolData.sceneName.L()}--{persistentBoolData.semiPersistent}-{persistentBoolData.id}\n" +
                     $"     form[{dataReceivedEvent.From}]");
             }
         }

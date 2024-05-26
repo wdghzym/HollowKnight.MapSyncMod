@@ -30,20 +30,23 @@ namespace MapSyncMod
         }
         private void Events_OnBenchUnlock(Benchwarp.BenchKey benchKey)
         {
-            if (!MapSyncMod.GS.BenchSync) return;
-            MapSyncMod.LogDebug($"Events_OnBenchUnlock[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
-            foreach (var toPlayerId in SyncPlayers)
+            try
             {
-                ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
-                        JsonConvert.SerializeObject(benchKey),
-                        toPlayerId);
-                MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
-            }
-            benchSync1000.Events_OnBenchUnlock(benchKey);
-            if (Interop.HasRecentItemsDisplay())
-                RecentItemsDisplay.Export.ShowItemChangerSprite($"{getBenchNmae(benchKey)}", "ShopIcons.BenchPin");
+                if (!MapSyncMod.GS.BenchSync) return;
+                MapSyncMod.LogDebug($"Events_OnBenchUnlock[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
+                foreach (var toPlayerId in SyncPlayers)
+                {
+                    ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
+                            JsonConvert.SerializeObject(benchKey),
+                            toPlayerId);
+                    MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+                }
+                benchSync1000.Events_OnBenchUnlock(benchKey);
+                ShowItemChangerSprite(getBenchNmae(benchKey), null, null, "ShopIcons.BenchPin");
 
-            MapSyncMod.LogDebug($"send[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
+                MapSyncMod.LogDebug($"send[{benchKey.SceneName}][{benchKey.RespawnMarkerName}]");
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
         }
 
         internal void OnDataReceived1000(DataReceivedEvent dataReceivedEvent) => this.OnDataReceived(dataReceivedEvent);
@@ -57,9 +60,7 @@ namespace MapSyncMod
             if (!Benchwarp.Benchwarp.LS.visitedBenchScenes.Contains(benchKey))
             {
                 MapSyncMod.LogDebug($"BenchSync Bench Is New");
-                if (Interop.HasRecentItemsDisplay())
-                    RecentItemsDisplay.Export.ShowItemChangerSprite($"{getBenchNmae(benchKey)}\n from {dataReceivedEvent.From}", "ShopIcons.BenchPin");
-
+                ShowItemChangerSprite(getBenchNmae(benchKey), dataReceivedEvent.From, null, "ShopIcons.BenchPin");
                 Benchwarp.Benchwarp.LS.visitedBenchScenes.Add(benchKey);
                 UnlockBench(benchKey.SceneName);
             }
