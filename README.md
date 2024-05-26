@@ -10,9 +10,9 @@
 - [ItemSyncMod](https://github.com/Shadudev/HollowKnight.MultiWorld)
 - [MapChanger](https://github.com/syyePhenomenol/MapChanger)
 - [Benchwarp](https://github.com/homothetyhk/HollowKnight.BenchwarpMod). Bench warp
+- [RecentItemsDisplay](https://github.com/flibber-hk/HollowKnight.RecentItemsDisplay).
  
 # Optional and compatible:
-- [RecentItemsDisplay](https://github.com/flibber-hk/HollowKnight.RecentItemsDisplay). Show BenchSync
 - [RandoMapMod](https://github.com/syyePhenomenol/RandoMapMod).. Bench warp. MapSync (Transition 2 Visited Only)
 
 
@@ -24,8 +24,8 @@
 - [ItemSyncMod](https://github.com/Shadudev/HollowKnight.MultiWorld)
 - [MapChanger](https://github.com/syyePhenomenol/MapChanger)
 - [Benchwarp](https://github.com/homothetyhk/HollowKnight.BenchwarpMod). 同步可传送椅子
+- [RecentItemsDisplay](https://github.com/flibber-hk/HollowKnight.RecentItemsDisplay).
 
 # 可选
-- [RecentItemsDisplay](https://github.com/flibber-hk/HollowKnight.RecentItemsDisplay). 椅子同步时显示消息
 - [RandoMapMod](https://github.com/syyePhenomenol/RandoMapMod). 同步可传送椅子. 地图同步 在青色2号模式([隔壁我有汉化](https://github.com/wdghzym/RandoMapMod/releases))
 
