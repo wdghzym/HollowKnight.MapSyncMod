@@ -60,9 +60,9 @@ namespace MapSyncMod
             if (!Benchwarp.Benchwarp.LS.visitedBenchScenes.Contains(benchKey))
             {
                 MapSyncMod.LogDebug($"BenchSync Bench Is New");
-                ShowItemChangerSprite(getBenchNmae(benchKey), dataReceivedEvent.From, null, "ShopIcons.BenchPin");
                 Benchwarp.Benchwarp.LS.visitedBenchScenes.Add(benchKey);
                 UnlockBench(benchKey.SceneName);
+                ShowItemChangerSprite(getBenchNmae(benchKey), dataReceivedEvent.From, null, "ShopIcons.BenchPin");
             }
             GameManager._instance.UpdateGameMap();
             MapChanger.UI.MapUILayerUpdater.Update();

@@ -76,7 +76,10 @@ namespace MapSyncMod
                 nameof(PlayerData.galienDefeated),//加利安
                 nameof(PlayerData.mumCaterpillarDefeated),//马尔穆?
                 nameof(PlayerData.aladarSlugDefeated),//戈布
+                //nameof(PlayerData.grimmChildLevel),//格林之子等级
 
+                
+                //nameof(PlayerData.nailSmithUpgrades),//
                 //nameof(PlayerData.),
         };
     }

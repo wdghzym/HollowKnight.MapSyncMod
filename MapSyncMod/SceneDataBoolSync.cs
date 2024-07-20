@@ -223,7 +223,8 @@ namespace MapSyncMod
             { ("Battle Scene","Crossroads_ShamanTemple"),null },//巴德尔
             { ("Battle Control","Ruins2_03"),"killedWatcherKnight" },
             { ("Battle Scene","Fungus3_23"),"killedTraitorLord" },
-            { ("Battle Scene","Deepnest_32"),null },//zote2
+            { ("Battle Scene v2","Deepnest_33"),null },//zote2
+            { ("Battle Scene","Deepnest_32"),null },//诺斯克
             { ("Battle Scene","Fungus1_21"),null },//grub
             { ("Battle Scene","Ruins_House_01"),null },//grub
             { ("Battle Scene","Room_Fungus_Shaman"),"Squit Battle" },
@@ -233,7 +234,7 @@ namespace MapSyncMod
             { ("Battle Scene","White_Palace_02"),"White Palace Battle" },
             { ("Battle Scene","Waterways_09"),"Waterways Cornifer Battle" },
             { ("Battle Scene","Ruins2_01"),"Watcher's Spire Battle" },
-            { ("Battle Scene","Crossroads_22"),"Glowing Womb Battle " },
+            { ("Battle Scene","Crossroads_22"),"Glowing Womb Battle" },
 
             { ("Battle Scene","Ruins2_09"), "City Vessel Fragment Battle"},
             { ("Battle Scene Ore","Abyss_17"),"Basin Palc Ore Battle" },

@@ -25,19 +25,22 @@ using static tk2dSpriteCollectionDefinition;
 using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.GridBrushBase;
 using static UnityEngine.UI.SaveSlotButton;
+using MonoMod.ModInterop;
 
 namespace MapSyncMod
 {
-    public class MapSyncMod : Mod, IGlobalSettings<GlobalSetting>, IMenuMod
+    public class MapSyncMod : Mod, IGlobalSettings<GlobalSetting>,ILocalSettings<LocalSettings>, IMenuMod
     {
         public static MapSyncMod Instance;
         public static GlobalSetting GS = new();
+        public static LocalSettings LS = new();
         public MapSync MapSync;
         public BenchSync BenchSync;
         public PlayDataBoolSync PlayDataBoolSync;
         public PlayDataIntSync PlayDataIntSync;
         public SceneDataBoolSync SceneDataBoolSync;
         public BossDoorSync BossDoorSync;
+        public BenchDeploySync BenchDeploySync;
         internal MapSyncModExtension mapSyncModExtension;
 
 
@@ -59,6 +62,7 @@ namespace MapSyncMod
         {
             base.Initialize();
             Interop.FindInteropMods();
+            typeof(Export).ModInterop();
             Localization.HookLocalization();
 
             MapSync = new MapSync();
@@ -67,6 +71,7 @@ namespace MapSyncMod
             PlayDataIntSync = new PlayDataIntSync();
             SceneDataBoolSync = new SceneDataBoolSync();
             BossDoorSync = new BossDoorSync();
+            BenchDeploySync = new BenchDeploySync();
             mapSyncModExtension = new MapSyncModExtension();
             //On.GameManager.LoadGame += GameManager_LoadGame;
             //On.GameManager.ReturnToMainMenu += GameManager_ReturnToMainMenu;
@@ -272,11 +277,27 @@ namespace MapSyncMod
                 },
                 new IMenuMod.MenuEntry
                 {
+                    Name = "BenchDeploy Sync".L(),
+                    Description = "and DreamGate need mod BenchDeploy".L(),
+                    Values = new string[] { "Enabled".L(), "Disabled".L() },
+                    Saver = bs => GS.BenchDeploySync = bs == 0,
+                    Loader = () => GS.BenchDeploySync ? 0 : 1
+                },
+                new IMenuMod.MenuEntry
+                {
                     Name = "Battle Boss Sync".L(),
                     Description = "battle scene and boss".L(),
                     Values = new string[] { "Enabled".L(), "Disabled".L() },
                     Saver = bs => GS.BossSync = bs == 0,
                     Loader = () => GS.BossSync ? 0 : 1
+                },
+                new IMenuMod.MenuEntry
+                {
+                    Name = "GrimmChild Sync(temp)".L(),
+                    Description = "when BossSync-foughtGrimm".L(),
+                    Values = new string[] { "Enabled".L(), "Disabled".L() },
+                    Saver = bs => GS.GrimmChildLevelSync = bs == 0,
+                    Loader = () => GS.GrimmChildLevelSync ? 0 : 1
                 },
                 new IMenuMod.MenuEntry
                 {
@@ -358,6 +379,16 @@ namespace MapSyncMod
                 }
 #endif
                 ];
+        }
+
+        void ILocalSettings<LocalSettings>.OnLoadLocal(LocalSettings s)
+        {
+            LS = s;
+        }
+
+        LocalSettings ILocalSettings<LocalSettings>.OnSaveLocal()
+        {
+            return LS;
         }
     }
 }

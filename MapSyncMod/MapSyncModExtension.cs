@@ -21,7 +21,7 @@ namespace MapSyncMod
 
         public void Init()
         {
-            Events.OnEnterGame += OnEnterGame;
+            MapChanger.Events.OnEnterGame += OnEnterGame;
             MapSyncHandler = new OnExtensionMenuConstructionHandler(MapSyncOnExtensionMenuConstruction);
             BenchSyncHandler= new OnExtensionMenuConstructionHandler(BenchSyncOnExtensionMenuConstruction);
             ExportedExtensionsMenuAPI.AddExtensionsMenu(MapSyncHandler);
@@ -30,7 +30,7 @@ namespace MapSyncMod
         private OnExtensionMenuConstructionHandler MapSyncHandler, BenchSyncHandler;
         public void UnInit()
         {
-            Events.OnEnterGame -= OnEnterGame;
+            MapChanger.Events.OnEnterGame -= OnEnterGame;
             ExportedExtensionsMenuAPI.RemoveExtensionsMenu(MapSyncHandler);
             ExportedExtensionsMenuAPI.RemoveExtensionsMenu(BenchSyncHandler);
         }
@@ -50,10 +50,11 @@ namespace MapSyncMod
 
                 for (int playerid = 0; playerid < readyMetadata.Count; playerid++)
                 {
-                    MapSyncMod.LogDebug($"items {readyMetadata[playerid].Count}");
+                    string playerName = ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()?[playerid];
+                    MapSyncMod.LogDebug($"player {playerName}\nitems {readyMetadata[playerid].Count}");
                     foreach (var item in readyMetadata[playerid])
                     {
-                        MapSyncMod.LogDebug($"playerid {playerid} mwplayerid {ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId}");
+                        //MapSyncMod.LogDebug($"playerid {playerid}  mwplayerid {ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId}");
                         MapSyncMod.LogDebug($"key[{item.Key}] value[{item.Value}]");
                     }
                     if (playerid == ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId) continue;
@@ -66,11 +67,11 @@ namespace MapSyncMod
                             case "1.0.0.0-debug":
                             case "1.0.0.0":
                                 MapSyncMod.Instance.MapSync.mapSync1000.SyncPlayers.Add(playerid);
-                                MapSyncMod.LogDebug($"addMapSyncPlayers1000 playerid[{playerid}]");
+                                MapSyncMod.LogDebug($"addMapSyncPlayers1000 playerid[{playerid}] player {playerName}");
                                 break;
                             default:
                                 MapSyncMod.Instance.MapSync.SyncPlayers.Add(playerid);
-                                MapSyncMod.LogDebug($"addMapSyncPlayers playerid[{playerid}]");
+                                MapSyncMod.LogDebug($"addMapSyncPlayers playerid[{playerid}] player {playerName}");
                                 break;
                         }
                     }
@@ -82,34 +83,40 @@ namespace MapSyncMod
                             case "1.0.0.0-debug":
                             case "1.0.0.0":
                                 MapSyncMod.Instance.BenchSync.benchSync1000.SyncPlayers.Add(playerid);
-                                MapSyncMod.LogDebug($"addBenchSyncPlayers1000 playerid[{playerid}]");
+                                MapSyncMod.LogDebug($"addBenchSyncPlayers1000 playerid[{playerid}] player {playerName}");
                                 break;
                             default:
                                 MapSyncMod.Instance.BenchSync.SyncPlayers.Add(playerid);
-                                MapSyncMod.LogDebug($"addBenchSyncPlayers playerid[{playerid}]");
+                                MapSyncMod.LogDebug($"addBenchSyncPlayers playerid[{playerid}] player {playerName}");
                                 break;
                         }
                     }
                     if (readyMetadata[playerid].ContainsKey(nameof(PlayDataBoolSync)))
                     {
                         MapSyncMod.Instance.PlayDataBoolSync.SyncPlayers.Add(playerid);
-                        MapSyncMod.LogDebug($"addPlayDataBoolSync playerid[{playerid}]");
+                        MapSyncMod.LogDebug($"addPlayDataBoolSync playerid[{playerid}] player {playerName}");
                     }
                     if (readyMetadata[playerid].ContainsKey(nameof(SceneDataBoolSync)))
                     {
                         MapSyncMod.Instance.SceneDataBoolSync.SyncPlayers.Add(playerid);
-                        MapSyncMod.LogDebug($"addSceneDataBoolSync playerid[{playerid}]");
+                        MapSyncMod.LogDebug($"addSceneDataBoolSync playerid[{playerid}] player {playerName}");
                     }
                     if (readyMetadata[playerid].ContainsKey(nameof(PlayDataIntSync)))
                     {
                         MapSyncMod.Instance.PlayDataIntSync.SyncPlayers.Add(playerid);
-                        MapSyncMod.LogDebug($"addPlayDataIntSync playerid[{playerid}]");
+                        MapSyncMod.LogDebug($"addPlayDataIntSync playerid[{playerid}] player {playerName}");
                     }
                     if (readyMetadata[playerid].ContainsKey(nameof(BossDoorSync)))
                     {
                         MapSyncMod.Instance.BossDoorSync.SyncPlayers.Add(playerid);
-                        MapSyncMod.LogDebug($"addBossDoorSync playerid[{playerid}]");
+                        MapSyncMod.LogDebug($"addBossDoorSync playerid[{playerid}] player {playerName}");
                     }
+                    if (readyMetadata[playerid].ContainsKey(nameof(BenchDeploySync)))
+                    {
+                        MapSyncMod.Instance.BenchDeploySync.SyncPlayers.Add(playerid);
+                        MapSyncMod.LogDebug($"addBenchDeploySync playerid[{playerid}] player {playerName}");
+                    }
+                    
 
                 }
             }
@@ -187,6 +194,10 @@ namespace MapSyncMod
                 if (!metadata.ContainsKey(nameof(BossDoorSync)))
                 {
                     metadata.Add(nameof(BossDoorSync), MapSyncMod.Instance.GetVersion());
+                }
+                if (!metadata.ContainsKey(nameof(BenchDeploySync)))
+                {
+                    metadata.Add(nameof(BenchDeploySync), MapSyncMod.Instance.GetVersion());
                 }
 
                 MapSyncMod.LogDebug($"BenchSync_OnAddReadyMetadata add");

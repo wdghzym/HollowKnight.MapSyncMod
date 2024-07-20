@@ -10,7 +10,10 @@ namespace MapSyncMod
     {
         public bool MapSync = true;
         public bool BenchSync = true;
+        public bool BenchDeploySync = true;
+        public bool NailSync = true;
         public bool BossSync = true;
+        public bool GrimmChildLevelSync = true;
         public bool BossDoorSync = true;
         public bool LeverSync = true;
         public bool LeverDisplay = false;

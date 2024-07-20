@@ -110,6 +110,13 @@ namespace MapSyncMod
                     }
                     if (boolName == nameof(PlayerData.slyRescued))
                         ItemChanger.ItemChangerMod.Modules.Get<ItemChanger.Modules.SlyRescuedEvent>().SlyRescued = true;
+                    if (boolName == nameof(PlayerData.foughtGrimm) && MapSyncMod.GS.GrimmChildLevelSync)
+                    {
+                        if (PlayerData.instance.grimmChildLevel<3)
+                        {
+                            PlayerData.instance.SetInt(nameof(PlayerData.grimmChildLevel), 3);
+                        }
+                    }
                 }
                 MapSyncMod.LogDebug($"PlayDataBool get [{boolName}]     form[{dataReceivedEvent.From}]");
             }

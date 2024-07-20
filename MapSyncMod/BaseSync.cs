@@ -20,13 +20,13 @@ namespace MapSyncMod
         }
         public virtual void Init()
         {
-            Events.OnEnterGame += OnEnterGameInternal;
-            Events.OnQuitToMenu += OnQuitToMenuInternal;
+            MapChanger.Events.OnEnterGame += OnEnterGameInternal;
+            MapChanger.Events.OnQuitToMenu += OnQuitToMenuInternal;
         }
         public virtual void UnInit()
         {
-            Events.OnEnterGame -= OnEnterGameInternal;
-            Events.OnQuitToMenu -= OnQuitToMenuInternal;
+            MapChanger.Events.OnEnterGame -= OnEnterGameInternal;
+            MapChanger.Events.OnQuitToMenu -= OnQuitToMenuInternal;
             OnQuitToMenu();
         }
         private void OnEnterGameInternal()
@@ -45,8 +45,8 @@ namespace MapSyncMod
             try
             {
                 ItemSyncMod.ItemSyncMod.Connection.OnDataReceived -= OnDataReceivedInternal;
-                OnQuitToMenu();
                 SyncPlayers.Clear();
+                OnQuitToMenu();
             }
             catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
         }
@@ -65,25 +65,35 @@ namespace MapSyncMod
         protected virtual void OnDataReceived(DataReceivedEvent dataReceivedEvent) { }
         protected void ShowItemChangerSprite(string name, string playername, string from, string spriteKey)
         {
-            if (name is null) return;
-            if (!Interop.HasRecentItemsDisplay()) return;
-            ShowItemChangerSprite2(name, playername, from, spriteKey);
+            try
+            {
+                if (name is null) return;
+
+                if (playername is not null)
+                    ItemChanger.Internal.MessageController.Enqueue(new ItemChanger.ItemChangerSprite(spriteKey).Value, $"{name.L()}\nfrom {playername}");
+                else
+                    ItemChanger.Internal.MessageController.Enqueue(new ItemChanger.ItemChangerSprite(spriteKey).Value, name.L());
+                if (!Interop.HasRecentItemsDisplay()) return;
+                ShowItemChangerSprite2(name, playername, from, spriteKey);
+            }
+            catch (Exception e) { MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}"); }
+
         }
         private void ShowItemChangerSprite2(string name, string playername, string from, string spriteKey)
         {
             if (playername is not null)
             {
                 if (from is null)
-                    RecentItemsDisplay.Export.ShowItemChangerSprite($"{name.L()}\nfrom {playername}", spriteKey);
+                    RecentItems.ShowItemChangerSprite($"{name.L()}\nfrom {playername}", spriteKey);
                 else
-                    RecentItemsDisplay.Export.ShowItemChangerSprite($"{name.L()}\nfrom {playername} \nin {from.L()}", spriteKey);
+                    RecentItems.ShowItemChangerSprite($"{name.L()}\nfrom {playername}\nin {from.L()}", spriteKey);
             }
             else
             {
                 if (from is null)
-                    RecentItemsDisplay.Export.ShowItemChangerSprite($"{name.L()}", spriteKey);
+                    RecentItems.ShowItemChangerSprite($"{name.L()}", spriteKey);
                 else
-                    RecentItemsDisplay.Export.ShowItemChangerSprite($"{name.L()}\nfrom {from.L()}", spriteKey);
+                    RecentItems.ShowItemChangerSprite($"{name.L()}\nfrom {from.L()}", spriteKey);
 
             }
         }
