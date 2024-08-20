@@ -25,6 +25,20 @@ namespace MapSyncMod
         }
         public bool SkipBench;
         private readonly Stopwatch HCUTimer = new();
+        private readonly Stopwatch SBTimer = new();
+        internal void SendBenchToPlayers(string benchScene, float benchX, float benchY)
+        {
+            if (!MapSyncMod.GS.BenchDeploySync) return;
+            Bench bench = new Bench("Bench", benchScene, benchX, benchY);
+            foreach (var toPlayerId in SyncPlayers)
+            {
+                ItemSyncMod.ItemSyncMod.Connection.SendData(MESSAGE_LABEL,
+                        JsonConvert.SerializeObject(bench),
+                        toPlayerId);
+                MapSyncMod.LogDebug($"send to id[{toPlayerId}] name[{ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames()[toPlayerId]}]");
+            }
+            MapSyncMod.LogDebug($"sended BenchDeploySync SendBenchToPlayers {bench.BenchScene} {bench.BenchX} {bench.BenchY}");
+        }
         private void HeroController_Update(On.HeroController.orig_Update orig, HeroController self)
         {
             orig(self);

@@ -78,7 +78,9 @@ namespace MapSyncMod
             //GameManager._instance.AddToScenesVisited(dataReceivedEvent.Content);
             if (!PlayerData.instance.scenesVisited.Contains(scenes))
                 PlayerData.instance.scenesVisited.Add(scenes);
-            
+
+            Events.NewSceneingInternal(dataReceivedEvent.From, scenes);
+
             GameManager._instance.UpdateGameMap();
             MapChanger.UI.MapUILayerUpdater.Update();
             foreach (var mapObject in MapChanger.MapObjectUpdater.MapObjects)

@@ -26,6 +26,8 @@ using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.GridBrushBase;
 using static UnityEngine.UI.SaveSlotButton;
 using MonoMod.ModInterop;
+using IL;
+using System.Diagnostics;
 
 namespace MapSyncMod
 {
@@ -80,11 +82,12 @@ namespace MapSyncMod
             MapChanger.Events.OnQuitToMenu += OnQuitToMenu;
             /*
             */
-            On.SceneData.SaveMyState_PersistentBoolData += SceneData_SaveMyState_PersistentBoolData;
-            On.SceneData.SaveMyState_PersistentIntData += SceneData_SaveMyState_PersistentIntData;
-            On.PlayerData.SetBool += PlayerData_SetBool;
+            //On.SceneData.SaveMyState_PersistentBoolData += SceneData_SaveMyState_PersistentBoolData;
+            //On.SceneData.SaveMyState_PersistentIntData += SceneData_SaveMyState_PersistentIntData;
+            //On.PlayerData.SetBool += PlayerData_SetBool;
             //On.PlayerData.SetInt += PlayerData_SetInt;
-            
+            On.HeroController.Update += HeroController_Update;
+            On.UIManager.UIClosePauseMenu += UIManager_UIClosePauseMenu;
             //On.PlayerData
 #endif
         }
@@ -93,7 +96,7 @@ namespace MapSyncMod
         private void PlayerData_SetInt(On.PlayerData.orig_SetInt orig, PlayerData self, string intName, int value)
         {
             switch (intName)
-            {
+            {/*
                 case "journalNotesCompleted":
                 case "journalEntriesTotal":
                 case "previousDarkness":
@@ -101,7 +104,7 @@ namespace MapSyncMod
                 case "MPCharge":
                 case "":
                 case "journalEntriesCompleted":
-                    break;
+                    break;*/
                 default:
                     if (PlayerData.instance.GetInt(intName) != value)
                         ShowMessage($"{intName}-{value}");
@@ -113,15 +116,16 @@ namespace MapSyncMod
         private void PlayerData_SetBool(On.PlayerData.orig_SetBool orig, PlayerData self, string boolName, bool value)
         {
             switch (boolName)
-            {
+            {/*
                 case "isInvincible":
                 case "disablePause":
                 case "atBench":
                 //case "":
                 case "hazardRespawnFacingRight":
-                    break;
+                    break;*/
                 default:
-                    if (!PlayerData.instance.GetBool(boolName) && value)
+                    //if (!PlayerData.instance.GetBool(boolName) && value)
+                    if (PlayerData.instance.GetBool(boolName) != value)
                         ShowMessage($"{boolName}-{value}");
                     break;
             }

@@ -25,5 +25,11 @@ namespace MapSyncMod
             if (name != null && name != "")
                 DreamGateing?.Invoke(name, scene, x, y);
         }
+        public static event Action<string, string> NewSceneing;
+        internal static void NewSceneingInternal(string name, string scene)
+        {
+            if (name != null && name != "")
+                NewSceneing?.Invoke(name, scene);
+        }
     }
 }

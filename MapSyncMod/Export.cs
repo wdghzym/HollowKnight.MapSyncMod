@@ -27,10 +27,24 @@ namespace MapSyncMod
         {
             Events.DreamGateing -= func;
         }
+        public static void AddNewSceneing(Action<string, string> func)
+        {
+            Events.NewSceneing += func;
+        }
+        public static void SubNewSceneing(Action<string, string> func)
+        {
+            Events.NewSceneing -= func;
+        }
+
         public static void SkipBench(bool skip)
         {
             MapSyncMod.Instance.BenchDeploySync.SkipBench = skip;
             MapSyncMod.LogDebug($"SkipBench {skip}");
+        }
+
+        public static void SendBenchToPlayers(string benchScene, float benchX, float benchY)
+        {
+            MapSyncMod.Instance.BenchDeploySync.SendBenchToPlayers(benchScene, benchX, benchY);
         }
     }
 }
