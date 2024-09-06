@@ -110,10 +110,15 @@ namespace MapSyncMod
                     }
                     if (boolName == nameof(PlayerData.slyRescued))
                         ItemChanger.ItemChangerMod.Modules.Get<ItemChanger.Modules.SlyRescuedEvent>().SlyRescued = true;
-                    if (boolName == nameof(PlayerData.foughtGrimm) && MapSyncMod.GS.GrimmChildLevelSync)
+                    if (boolName == nameof(PlayerData.killedGrimm) && MapSyncMod.GS.GrimmChildLevelSync)
                     {
-                        if (PlayerData.instance.grimmChildLevel<3)
+                        if (PlayerData.instance.grimmChildLevel < 2)
                         {
+                            //PlayerData.instance.IntAdd(nameof(PlayerData.flamesCollected), -3);
+                        }
+                        if (PlayerData.instance.grimmChildLevel < 3)
+                        {
+                            //PlayerData.instance.IntAdd(nameof(PlayerData.flamesCollected), -3);
                             PlayerData.instance.SetInt(nameof(PlayerData.grimmChildLevel), 3);
                         }
                     }
@@ -139,7 +144,7 @@ namespace MapSyncMod
                 nameof(PlayerData.defeatedDungDefender),//芬达
                 nameof(PlayerData.hornetOutskirtsDefeated),//二见
                 nameof(PlayerData.collectorDefeated),//收藏家
-                //nameof(PlayerData.foughtGrimm),//格林6火战?
+                //nameof(PlayerData.foughtGrimm),//格林6火战? 进入过战斗
                 nameof(PlayerData.killedInfectedKnight),//表哥
                 nameof(PlayerData.killedHiveKnight),//蜂巢
                 //nameof(PlayerData.killedMageKnight),
@@ -161,6 +166,7 @@ namespace MapSyncMod
                 nameof(PlayerData.colosseumSilverCompleted),//2
                 nameof(PlayerData.colosseumGoldCompleted),//3
                 //nameof(PlayerData.defeatedDoubleBlockers),//双巴  没什么效果
+                nameof(PlayerData.killedPaleLurker),//苍白潜伏者
             };
 #if DEBUG
         public static
@@ -187,7 +193,7 @@ namespace MapSyncMod
                 nameof(PlayerData.defeatedDungDefender),//芬达
                 nameof(PlayerData.hornetOutskirtsDefeated),//二见
                 nameof(PlayerData.collectorDefeated),//收藏家
-                nameof(PlayerData.foughtGrimm),//格林6火战?
+                nameof(PlayerData.foughtGrimm),//格林6火战? 进入过战斗
                 nameof(PlayerData.killedInfectedKnight),//表哥
                 nameof(PlayerData.killedHiveKnight),//蜂巢
                 nameof(PlayerData.killedMageKnight),

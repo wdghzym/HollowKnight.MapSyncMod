@@ -25,7 +25,7 @@ namespace MapSyncMod
         }
         public bool SkipBench;
         private readonly Stopwatch HCUTimer = new();
-        private readonly Stopwatch SBTimer = new();
+        //private readonly Stopwatch SBTimer = new();
         internal void SendBenchToPlayers(string benchScene, float benchX, float benchY)
         {
             if (!MapSyncMod.GS.BenchDeploySync) return;
