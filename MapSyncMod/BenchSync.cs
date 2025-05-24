@@ -65,11 +65,7 @@ namespace MapSyncMod
                 ShowItemChangerSprite(getBenchNmae(benchKey), dataReceivedEvent.From, null, "ShopIcons.BenchPin");
             }
             GameManager._instance.UpdateGameMap();
-            MapChanger.UI.MapUILayerUpdater.Update();
-            foreach (var mapObject in MapChanger.MapObjectUpdater.MapObjects)
-            {
-                mapObject.MainUpdate();
-            }
+            MapChanger.MapObjectUpdater.Update();
         }
 
         private string getBenchNmae(BenchKey benchKey)
