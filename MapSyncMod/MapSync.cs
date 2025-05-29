@@ -69,11 +69,11 @@ namespace MapSyncMod
             if (!MapSyncMod.GS.MapSync) return;
             string scenes = JsonConvert.DeserializeObject<string>(dataReceivedEvent.Content);
 
-            if (!MapChanger.Tracker.ScenesVisited.Contains(scenes))
+            if (!MapChanger.Tracker.HasVisitedScene(scenes))
                 MapSyncMod.LogDebug($"mapSync get[{scenes.L()}]     form[{dataReceivedEvent.From}]");
 
-            if (!MapChanger.Tracker.ScenesVisited.Contains(scenes))
-                MapChanger.Tracker.ScenesVisited.Add(scenes);
+            if (!MapChanger.Tracker.HasVisitedScene(scenes))
+                MapChanger.Tracker.AddSceneVisited(scenes);
 
             //GameManager._instance.AddToScenesVisited(dataReceivedEvent.Content);
             if (!PlayerData.instance.scenesVisited.Contains(scenes))
@@ -82,11 +82,7 @@ namespace MapSyncMod
             Events.NewSceneingInternal(dataReceivedEvent.From, scenes);
 
             GameManager._instance.UpdateGameMap();
-            MapChanger.UI.MapUILayerUpdater.Update();
-            foreach (var mapObject in MapChanger.MapObjectUpdater.MapObjects)
-            {
-                mapObject.MainUpdate();
-            }
+            MapChanger.MapObjectUpdater.Update();
         }
     }
 }
