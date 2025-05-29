@@ -1,5 +1,4 @@
 ﻿using ItemChanger;
-using MapChanger;
 using MultiWorldLib;
 using Newtonsoft.Json;
 using System;

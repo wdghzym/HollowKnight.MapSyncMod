@@ -2,7 +2,6 @@
 using ItemChanger;
 using ItemSyncMod;
 using ItemSyncMod.SyncFeatures.TransitionsFoundSync;
-using MapChanger;
 using MultiWorldLib;
 using Newtonsoft.Json;
 using System;
@@ -64,6 +63,11 @@ namespace MapSyncMod
                 UnlockBench(benchKey.SceneName);
                 ShowItemChangerSprite(getBenchNmae(benchKey), dataReceivedEvent.From, null, "ShopIcons.BenchPin");
             }
+            MapUpdate();
+        }
+
+        private void MapUpdate()
+        {
             GameManager._instance.UpdateGameMap();
             MapChanger.MapObjectUpdater.Update();
         }

@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using static MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.MenuStateEvents;
 using MenuChanger.MenuElements;
-using MapChanger;
 
 namespace MapSyncMod
 {

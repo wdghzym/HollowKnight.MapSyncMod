@@ -1,5 +1,4 @@
-﻿using MapChanger;
-using Modding;
+﻿using Modding;
 using MultiWorldLib;
 using Newtonsoft.Json;
 using System;

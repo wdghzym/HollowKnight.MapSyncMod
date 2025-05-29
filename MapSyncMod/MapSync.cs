@@ -1,6 +1,4 @@
-﻿using ItemChanger;
-using MapChanger;
-using MultiWorldLib;
+﻿using MultiWorldLib;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -46,7 +44,7 @@ namespace MapSyncMod
                 Dream_Guardian_Monomon
                 Dream_Guardian_Hegemol
                  */
-                if (!PlayerData.instance.scenesVisited.Contains(to.name))
+                //if (!PlayerData.instance.scenesVisited.Contains(to.name))
                 {
                     MapSyncMod.LogDebug($"scenesVisited.!Contains[{to.name.L()}]");
                     foreach (var toPlayerId in SyncPlayers)
@@ -68,21 +66,31 @@ namespace MapSyncMod
         {
             if (!MapSyncMod.GS.MapSync) return;
             string scenes = JsonConvert.DeserializeObject<string>(dataReceivedEvent.Content);
-
-            if (!MapChanger.Tracker.HasVisitedScene(scenes))
-                MapSyncMod.LogDebug($"mapSync get[{scenes.L()}]     form[{dataReceivedEvent.From}]");
-
-            if (!MapChanger.Tracker.HasVisitedScene(scenes))
-                MapChanger.Tracker.AddSceneVisited(scenes);
-
             //GameManager._instance.AddToScenesVisited(dataReceivedEvent.Content);
             if (!PlayerData.instance.scenesVisited.Contains(scenes))
                 PlayerData.instance.scenesVisited.Add(scenes);
-
             Events.NewSceneingInternal(dataReceivedEvent.From, scenes);
-
-            GameManager._instance.UpdateGameMap();
-            MapChanger.MapObjectUpdater.Update();
+            MapUpdate(scenes);
         }
+        private void MapUpdate(string scenes)
+        {
+            GameManager._instance.UpdateGameMap();
+
+            if (!MapChangerEnabled) return;
+            try
+            {
+                if (!MapChanger.Tracker.HasVisitedScene(scenes))
+                {
+                    MapChanger.Tracker.AddSceneVisited(scenes);
+                    MapChanger.MapObjectUpdater.Update();
+                }
+            }
+            catch (Exception e)
+            {
+                MapChangerEnabled = false;
+                MapSyncMod.Instance.LogError($"{e.Message} \n{e.StackTrace}");
+            }
+        }
+        private bool MapChangerEnabled = true;
     }
 }

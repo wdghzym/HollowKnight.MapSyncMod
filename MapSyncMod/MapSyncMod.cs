@@ -3,8 +3,6 @@ using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using ItemChanger;
 using ItemSyncMod.SyncFeatures.TransitionsFoundSync;
-using MapChanger;
-using MapChanger.UI;
 using Modding;
 using MultiWorldLib;
 using Newtonsoft.Json;
@@ -28,6 +26,7 @@ using static UnityEngine.UI.SaveSlotButton;
 using MonoMod.ModInterop;
 using IL;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace MapSyncMod
 {
@@ -86,8 +85,6 @@ namespace MapSyncMod
             //On.SceneData.SaveMyState_PersistentIntData += SceneData_SaveMyState_PersistentIntData;
             //On.PlayerData.SetBool += PlayerData_SetBool;
             //On.PlayerData.SetInt += PlayerData_SetInt;
-            On.HeroController.Update += HeroController_Update;
-            On.UIManager.UIClosePauseMenu += UIManager_UIClosePauseMenu;
             //On.PlayerData
 #endif
         }

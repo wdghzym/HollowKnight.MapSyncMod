@@ -2,7 +2,6 @@
 using ItemChanger;
 using ItemSyncMod;
 using ItemSyncMod.SyncFeatures.TransitionsFoundSync;
-using MapChanger;
 using MultiWorldLib;
 using Newtonsoft.Json;
 using System;
